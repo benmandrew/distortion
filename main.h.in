@@ -1,0 +1,2 @@
+#define Distortion_VERSION_MAJOR @Distortion_VERSION_MAJOR@
+#define Distortion_VERSION_MINOR @Distortion_VERSION_MINOR@
