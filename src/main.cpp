@@ -7,28 +7,27 @@
 
 // PNG file to RGBA pixel data
 Image decode(const char *filename) {
-    Image png;
-    Image image;
+    ImgData png, image;
     u_int width, height;
     u_int error = lodepng::load_file(png, filename);
     if (!error) {
         error = lodepng::decode(image, width, height, png);
     }
     if (error) {
-        std::cout << "decoder error " << error << ": " << lodepng_error_text(error) << std::endl;
+        std::cerr << "decoder error " << error << ": " << lodepng_error_text(error) << std::endl;
     }
-    return image;
+    return Image(image, width, height);
 }
 
 // RGBA pixel data to PNG file
-void encode(const char* filename, Image &image, u_int width, u_int height) {
-    Image png;
-    u_char error = lodepng::encode(png, image, width, height);
+void encode(const char* filename, Image &image) {
+    ImgData png;
+    u_char error = lodepng::encode(png, image.data, image.w, image.h);
     if (!error) {
         lodepng::save_file(png, filename);
     }
     if (error) {
-        std::cout << "encoder error " << error << ": "<< lodepng_error_text(error) << std::endl;
+        std::cerr << "encoder error " << error << ": "<< lodepng_error_text(error) << std::endl;
     }
 }
 
@@ -44,7 +43,7 @@ int main(int argc, char *argv[]) {
         return 1;
     }
     Image v = decode(argv[1]);
-    Image w = posterise(v, true); 
-    encode("resources/out.png", w, 10, 10);
+    Image w = v.posterise();
+    encode("resources/out.png", w);
     return 0;
 }
