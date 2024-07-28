@@ -3,6 +3,7 @@
 #include "main.h"
 #include "lodepng.h"
 
+// PNG file to RGBA pixel data
 std::vector<u_char> decode(const char *filename) {
     std::vector<u_char> png;
     std::vector<u_char> image;
@@ -17,6 +18,18 @@ std::vector<u_char> decode(const char *filename) {
     return image;
 }
 
+// RGBA pixel data to PNG file
+void encode(const char* filename, std::vector<unsigned char>& image, unsigned width, unsigned height) {
+    std::vector<unsigned char> png;
+    u_char error = lodepng::encode(png, image, width, height);
+    if (!error) {
+        lodepng::save_file(png, filename);
+    }
+    if (error) {
+        std::cout << "encoder error " << error << ": "<< lodepng_error_text(error) << std::endl;
+    }
+}
+
 void output_version(char *argv[]) {
     std::cout << argv[0] << " Version "
         << Distortion_VERSION_MAJOR << "."
@@ -28,7 +41,12 @@ int main(int argc, char *argv[]) {
         output_version(argv);
         return 1;
     }
-    const double v = std::stod(argv[1]);
-    std::cout << "Hello world! " << v << std::endl;
+    std::vector<u_char> v = decode(argv[1]);
+
+    for (u_int i = 0; i < 100; i++) {
+        v[4 * i] = v[4 * i] + 100;
+    }
+
+    encode("out.png", v, 10, 10);
     return 0;
 }
