@@ -3,10 +3,12 @@
 #include "main.h"
 #include "lodepng.h"
 
+#include "img.cpp"
+
 // PNG file to RGBA pixel data
-std::vector<u_char> decode(const char *filename) {
-    std::vector<u_char> png;
-    std::vector<u_char> image;
+Image decode(const char *filename) {
+    Image png;
+    Image image;
     u_int width, height;
     u_int error = lodepng::load_file(png, filename);
     if (!error) {
@@ -19,8 +21,8 @@ std::vector<u_char> decode(const char *filename) {
 }
 
 // RGBA pixel data to PNG file
-void encode(const char* filename, std::vector<unsigned char>& image, unsigned width, unsigned height) {
-    std::vector<unsigned char> png;
+void encode(const char* filename, Image &image, u_int width, u_int height) {
+    Image png;
     u_char error = lodepng::encode(png, image, width, height);
     if (!error) {
         lodepng::save_file(png, filename);
@@ -41,12 +43,8 @@ int main(int argc, char *argv[]) {
         output_version(argv);
         return 1;
     }
-    std::vector<u_char> v = decode(argv[1]);
-
-    for (u_int i = 0; i < 100; i++) {
-        v[4 * i] = v[4 * i] + 100;
-    }
-
-    encode("out.png", v, 10, 10);
+    Image v = decode(argv[1]);
+    Image w = posterise(v, true); 
+    encode("resources/out.png", w, 10, 10);
     return 0;
 }
