@@ -4,3 +4,8 @@ include_directories(
 )
 
 add_executable(Distortion main.cpp)
+
+target_link_libraries(
+    Distortion PUBLIC
+    lodepng
+)

@@ -6,8 +6,8 @@
 std::vector<u_char> decode(const char *filename) {
     std::vector<u_char> png;
     std::vector<u_char> image;
-    unsigned width, height;
-    unsigned error = lodepng::load_file(png, filename);
+    u_int width, height;
+    u_int error = lodepng::load_file(png, filename);
     if (!error) {
         error = lodepng::decode(image, width, height, png);
     }
