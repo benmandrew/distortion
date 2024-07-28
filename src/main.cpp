@@ -1,11 +1,31 @@
 #include <iostream>
+
 #include "main.h"
+#include "lodepng.h"
+
+std::vector<u_char> decode(const char *filename) {
+    std::vector<u_char> png;
+    std::vector<u_char> image;
+    unsigned width, height;
+    unsigned error = lodepng::load_file(png, filename);
+    if (!error) {
+        error = lodepng::decode(image, width, height, png);
+    }
+    if (error) {
+        std::cout << "decoder error " << error << ": " << lodepng_error_text(error) << std::endl;
+    }
+    return image;
+}
+
+void output_version(char *argv[]) {
+    std::cout << argv[0] << " Version "
+        << Distortion_VERSION_MAJOR << "."
+        << Distortion_VERSION_MINOR << std::endl;
+}
 
 int main(int argc, char *argv[]) {
     if (argc < 2) {
-        std::cout << argv[0] << " Version "
-            << Distortion_VERSION_MAJOR << "."
-            << Distortion_VERSION_MINOR << std::endl;
+        output_version(argv);
         return 1;
     }
     const double v = std::stod(argv[1]);
