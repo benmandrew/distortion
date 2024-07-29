@@ -59,14 +59,16 @@ public:
    u_int w, h;
 
    Rle(Image &image);
-
    Image to_image();
+
+   static std::vector<size_t> encode(ImgData &data);
+   static ImgData decode(std::vector<size_t> &data, u_int w, u_int h);
 
    void add_noise(double stddev);
    void add_noise_rows(double stddev);
 };
 
-std::vector<size_t> encode(ImgData &data) {
+std::vector<size_t> Rle::encode(ImgData &data) {
    u_char r = data[0];
    u_char g = data[1];
    u_char b = data[2];
@@ -95,7 +97,7 @@ std::vector<size_t> encode(ImgData &data) {
    return out;
 }
 
-ImgData decode(std::vector<size_t> &data, u_int w, u_int h) {
+ImgData Rle::decode(std::vector<size_t> &data, u_int w, u_int h) {
    ImgData out;
    size_t rl_len = data.size() / 5;
    for (int i = 0; i < rl_len; i++) {
@@ -179,4 +181,36 @@ void Rle::add_noise_rows(double stddev = 1.0) {
       }
       n_prev_runs += runs_in_row;
    }
+}
+
+class RelBlock {
+public:
+   u_int w, h;
+   std::vector<size_t> centers;
+   std::vector<size_t> rel_blocks;
+   u_int block_width;
+
+   RelBlock(Image &image, u_int block_width);
+
+   std::vector<size_t> get_centers(ImgData &data);
+};
+
+RelBlock::RelBlock(Image &image, u_int block_width) {
+   this->w = image.w;
+   this->h = image.h;
+   size_t n_blocks_w = w / block_width;
+   size_t n_blocks_h = h / block_width;
+}
+
+std::vector<size_t> RelBlock::get_centers(ImgData &data) {
+   u_int center_offset = block_width / 2;
+   size_t n_blocks_w = w / block_width;
+   size_t n_blocks_h = h / block_width;
+   std::vector<size_t> centers(n_blocks_h * n_blocks_w);
+   for (int j = 0; j < n_blocks_h; j++) {
+      for (int i = 0; i < n_blocks_w; i++) {
+         centers[j * w + i] = data[j * w * (block_width + center_offset) + i * block_width + center_offset];
+      }
+   }
+   return centers;
 }
