@@ -43,10 +43,10 @@ int main(int argc, char *argv[]) {
         return 1;
     }
     Image v = decode(argv[1]);
-    Image w = v.posterise();
+    // Image w = v.posterise();
 
-    Rle rle = Rle(w);
-    rle.add_noise(0.375);
+    Rle rle = Rle(v);
+    rle.add_noise_rows(0.6);
     Image x = rle.to_image();
 
     encode("resources/out.png", x);
