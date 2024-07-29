@@ -44,6 +44,11 @@ int main(int argc, char *argv[]) {
     }
     Image v = decode(argv[1]);
     Image w = v.posterise();
-    encode("resources/out.png", w);
+
+    Rle rle = Rle(w);
+    rle.add_noise(0.375);
+    Image x = rle.to_image();
+
+    encode("resources/out.png", x);
     return 0;
 }
