@@ -1,0 +1,16 @@
+#!/bin/sh
+
+astyle \
+    --recursive \
+    --quiet \
+    --exclude=build \
+    --exclude=CMakeFiles \
+    --exclude=lodepng \
+    --suffix=none \
+    --style=google \
+    --add-braces \
+    --convert-tabs \
+    --max-code-length=80 \
+    --attach-return-type \
+    --attach-return-type-decl \
+    *.cpp *.h

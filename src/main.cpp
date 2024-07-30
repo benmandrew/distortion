@@ -14,7 +14,8 @@ Image decode(const char *filename) {
         error = lodepng::decode(image, width, height, png);
     }
     if (error) {
-        std::cerr << "decoder error " << error << ": " << lodepng_error_text(error) << std::endl;
+        std::cerr << "decoder error " << error << ": " << lodepng_error_text(
+                      error) << std::endl;
     }
     return Image(image, width, height);
 }
@@ -27,14 +28,15 @@ void encode(const char* filename, Image &image) {
         lodepng::save_file(png, filename);
     }
     if (error) {
-        std::cerr << "encoder error " << error << ": "<< lodepng_error_text(error) << std::endl;
+        std::cerr << "encoder error " << error << ": "<< lodepng_error_text(
+                      error) << std::endl;
     }
 }
 
 void output_version(char *argv[]) {
     std::cout << argv[0] << " Version "
-        << Distortion_VERSION_MAJOR << "."
-        << Distortion_VERSION_MINOR << std::endl;
+              << Distortion_VERSION_MAJOR << "."
+              << Distortion_VERSION_MINOR << std::endl;
 }
 
 int main(int argc, char *argv[]) {
