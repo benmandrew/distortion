@@ -187,30 +187,101 @@ class RelBlock {
 public:
    u_int w, h;
    std::vector<size_t> centers;
-   std::vector<size_t> rel_blocks;
+   std::vector<int> rel_blocks;
    u_int block_width;
 
    RelBlock(Image &image, u_int block_width);
+   Image to_image();
 
    std::vector<size_t> get_centers(ImgData &data);
+   std::vector<int> get_relative_blocks(ImgData &data);
+
+   Image rel_to_image();
 };
 
 RelBlock::RelBlock(Image &image, u_int block_width) {
    this->w = image.w;
    this->h = image.h;
-   size_t n_blocks_w = w / block_width;
-   size_t n_blocks_h = h / block_width;
+   this->block_width = block_width;
+   this->centers = get_centers(image.data);
+   this->rel_blocks = get_relative_blocks(image.data);
 }
 
 std::vector<size_t> RelBlock::get_centers(ImgData &data) {
    u_int center_offset = block_width / 2;
    size_t n_blocks_w = w / block_width;
    size_t n_blocks_h = h / block_width;
-   std::vector<size_t> centers(n_blocks_h * n_blocks_w);
+   std::vector<size_t> centers(n_blocks_h * n_blocks_w * 4);
    for (int j = 0; j < n_blocks_h; j++) {
       for (int i = 0; i < n_blocks_w; i++) {
-         centers[j * w + i] = data[j * w * (block_width + center_offset) + i * block_width + center_offset];
+         size_t target_i = j * n_blocks_w + i;
+         size_t source_i = (j * block_width + center_offset) * w + i * block_width + center_offset;
+         centers[target_i * 4] = data[source_i * 4];
+         centers[target_i * 4 + 1] = data[source_i * 4 + 1];
+         centers[target_i * 4 + 2] = data[source_i * 4 + 2];
+         centers[target_i * 4 + 3] = data[source_i * 4 + 3];
       }
    }
    return centers;
+}
+
+std::vector<int> RelBlock::get_relative_blocks(ImgData &data) {
+   size_t n_blocks_w = w / block_width;
+   size_t n_blocks_h = h / block_width;
+   std::vector<int> rel_blocks(data.size(), 0);
+   for (int j = 0; j < n_blocks_h; j++) {
+      for (int i = 0; i < n_blocks_w; i++) {
+         size_t c_idx = (j * n_blocks_w + i) * 4;
+         int c_r = (int)centers[c_idx];
+         int c_g = (int)centers[c_idx + 1];
+         int c_b = (int)centers[c_idx + 2];
+         int c_a = (int)centers[c_idx + 3];
+         for (int l = 0; l < block_width; l++) {
+            for (int k = 0; k < block_width; k++) {
+               size_t r_idx = ((j * block_width + l) * w + i * block_width + k) * 4;
+               rel_blocks[r_idx] = int(data[r_idx]) - c_r;
+               rel_blocks[r_idx + 1] = int(data[r_idx + 1]) - c_g;
+               rel_blocks[r_idx + 2] = int(data[r_idx + 2]) - c_b;
+               rel_blocks[r_idx + 3] = int(data[r_idx + 3]) - c_a;
+            }
+         }
+      }
+   }
+   return rel_blocks;
+}
+
+Image RelBlock::to_image() {
+   size_t n_blocks_w = w / block_width;
+   size_t n_blocks_h = h / block_width;
+   ImgData data(rel_blocks.size(), 0);
+   for (int j = 0; j < n_blocks_h; j++) {
+      for (int i = 0; i < n_blocks_w; i++) {
+         size_t c_idx = (j * n_blocks_w + i) * 4;
+         size_t c_r = centers[c_idx];
+         size_t c_g = centers[c_idx + 1];
+         size_t c_b = centers[c_idx + 2];
+         size_t c_a = centers[c_idx + 3];
+         for (int l = 0; l < block_width; l++) {
+            for (int k = 0; k < block_width; k++) {
+               size_t r_idx = ((j * block_width + l) * w + i * block_width + k) * 4;
+               data[r_idx] = size_t(rel_blocks[r_idx]) + c_r;
+               data[r_idx + 1] = size_t(rel_blocks[r_idx + 1]) + c_g;
+               data[r_idx + 2] = size_t(rel_blocks[r_idx + 2]) + c_b;
+               data[r_idx + 3] = size_t(rel_blocks[r_idx + 3]) + c_a;
+            }
+         }
+      }
+   }
+   return Image(data, w, h);
+}
+
+Image RelBlock::rel_to_image() {
+   ImgData data(rel_blocks.size(), 0);
+   for (int i = 0; i < rel_blocks.size(); i++) {
+      data[i] = u_char(abs(rel_blocks[i]));
+      if (i % 4 == 3) {
+         data[i] = 255;
+      }
+   }
+   return Image(data, w, h);
 }

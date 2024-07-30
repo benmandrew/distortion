@@ -45,9 +45,12 @@ int main(int argc, char *argv[]) {
     Image v = decode(argv[1]);
     // Image w = v.posterise();
 
-    Rle rle = Rle(v);
-    rle.add_noise_rows(0.6);
-    Image x = rle.to_image();
+    // Rle rle = Rle(v);
+    // rle.add_noise_rows(0.6);
+    // Image x = rle.to_image();
+
+    RelBlock r(v, 60);
+    Image x = r.rel_to_image();
 
     encode("resources/out.png", x);
     return 0;
