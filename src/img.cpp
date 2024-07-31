@@ -2,9 +2,6 @@
 
 #include <random>
 
-#define POST_LEVELS 8
-#define POST_COEFF (u_char)(256 / POST_LEVELS)
-
 class Image {
   public:
     ImgData data;
@@ -15,6 +12,7 @@ class Image {
 
     size_t size();
     Image posterise(bool ignore_alpha);
+    Image streak_down();
 };
 
 Image::Image(u_int w, u_int h) {
@@ -33,6 +31,9 @@ size_t Image::size() {
     return w * h;
 }
 
+#define POST_LEVELS 8
+#define POST_COEFF (u_char)(256 / POST_LEVELS)
+
 u_char posterise_value(u_char v) {
     if (v == 255) {
         return v;
@@ -47,6 +48,36 @@ Image Image::posterise(bool ignore_alpha = true) {
             out.data[i] = data[i];
         } else {
             out.data[i] = posterise_value(data[i]);
+        }
+    }
+    return out;
+}
+
+double luminance(u_char r, u_char g, u_char b) {
+    return 0.2126 * double(r) + 0.7152 * double(g) + 0.0722 * double(b);
+}
+
+Image Image::streak_down() {
+    Image out(w, h);
+    for (int j = h - 1; j >= 0; j--) {
+        for (int i = 0; i < w; i++) {
+            size_t idx = (j * w + i) * 4;
+            u_char r = data[idx];
+            u_char g = data[idx + 1];
+            u_char b = data[idx + 2];
+            u_char a = data[idx + 3];
+            u_char streak_len = std::max(u_char(1), u_char(exp2(luminance(r, g,
+                                         b) / 36.0)));
+            for (int k = 0; k < streak_len; k++) {
+                if (j + k >= h) {
+                    break;
+                }
+                size_t s_idx = ((j + k) * w + i) * 4;
+                out.data[s_idx] = r;
+                out.data[s_idx + 1] = g;
+                out.data[s_idx + 2] = b;
+                out.data[s_idx + 3] = a;
+            }
         }
     }
     return out;
