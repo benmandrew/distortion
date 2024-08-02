@@ -1,4 +1,6 @@
 #include <random>
+#include <functional>
+#include <optional>
 
 #include "vec.h"
 
@@ -12,7 +14,12 @@ class Image {
 
     size_t size();
     Image posterise(bool ignore_alpha);
+    Image streak(std::vector<int> h_iter, std::vector<int> v_iter,
+                 std::function<std::optional<int>(int, int, int, int, int)> get_streak_idx);
     Image streak_down();
+    Image streak_up();
+    Image streak_left();
+    Image streak_right();
 };
 
 Image::Image(u_int w, u_int h) {
@@ -58,24 +65,83 @@ Image Image::posterise(bool ignore_alpha = true) {
     return out;
 }
 
-Image Image::streak_down() {
+double get_streak_len(double lum) {
+    return pow(lum / 256.0, 6.0) * 1280.0;
+}
+
+Image Image::streak(std::vector<int> h_iter, std::vector<int> v_iter,
+                    std::function<std::optional<int>(int, int, int, int, int)> get_streak_idx) {
     Image out(w, h);
-    for (int j = h - 1; j >= 0; j--) {
-        for (int i = 0; i < w; i++) {
+    for (int j : v_iter) {
+        for (int i : h_iter) {
             size_t idx = j * w + i;
             vec4 *v_o = &data[idx];
-            u_char streak_len = std::max(static_cast<u_char>(1),
-                                         static_cast<u_char>(exp2(v_o->luminance() / 36.0)));
+            u_char streak_len = get_streak_len(v_o->luminance());
+            streak_len = std::max(static_cast<u_char>(1),
+                                  static_cast<u_char>(streak_len));
             for (int k = 0; k < streak_len; k++) {
-                if (j + k >= h) {
+                std::optional<int> s_idx_op = get_streak_idx(w, h, i, j, k);
+                if (not s_idx_op.has_value()) {
                     break;
                 }
-                size_t s_idx = (j + k) * w + i;
+                int s_idx = s_idx_op.value();
                 out.data[s_idx] = *v_o;
             }
         }
     }
     return out;
+}
+
+Image Image::streak_down() {
+    std::vector<int> h_iter(w), v_iter(h);
+    std::iota(h_iter.begin(), h_iter.end(), 0);
+    std::iota(v_iter.rbegin(), v_iter.rend(), 0);
+    auto get_streak_pos = [](int w, int h, int i, int j, int k) -> std::optional<int> {
+        if (j + k >= h) {
+            return std::nullopt;
+        }
+        return (j + k) * w + i;
+    };
+    return streak(h_iter, v_iter, get_streak_pos);
+}
+
+Image Image::streak_up() {
+    std::vector<int> h_iter(w), v_iter(h);
+    std::iota(h_iter.begin(), h_iter.end(), 0);
+    std::iota(v_iter.begin(), v_iter.end(), 0);
+    auto get_streak_pos = [](int w, int h, int i, int j, int k) -> std::optional<int> {
+        if (j - k < 0) {
+            return std::nullopt;
+        }
+        return (j - k) * w + i;
+    };
+    return streak(h_iter, v_iter, get_streak_pos);
+}
+
+Image Image::streak_left() {
+    std::vector<int> h_iter(w), v_iter(h);
+    std::iota(h_iter.begin(), h_iter.end(), 0);
+    std::iota(v_iter.begin(), v_iter.end(), 0);
+    auto get_streak_pos = [](int w, int h, int i, int j, int k) -> std::optional<int> {
+        if (i - k < 0) {
+            return std::nullopt;
+        }
+        return j * w + i - k;
+    };
+    return streak(h_iter, v_iter, get_streak_pos);
+}
+
+Image Image::streak_right() {
+    std::vector<int> h_iter(w), v_iter(h);
+    std::iota(h_iter.rbegin(), h_iter.rend(), 0);
+    std::iota(v_iter.begin(), v_iter.end(), 0);
+    auto get_streak_pos = [](int w, int h, int i, int j, int k) -> std::optional<int> {
+        if (i + k >= w) {
+            return std::nullopt;
+        }
+        return j * w + i + k;
+    };
+    return streak(h_iter, v_iter, get_streak_pos);
 }
 
 // Run-length encoded image

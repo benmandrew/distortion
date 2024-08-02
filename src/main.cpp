@@ -1,5 +1,6 @@
 #include <iostream>
 #include <cassert>
+#include <chrono>
 
 #include "img.cpp"
 #include "main.h"
@@ -72,18 +73,33 @@ int main(int argc, char *argv[]) {
         output_version(argv);
         return 1;
     }
+    auto start = std::chrono::high_resolution_clock::now();
+    std::cout << "Decoding" << std::endl;
     Image v = decode(argv[1]);
+    auto end = std::chrono::high_resolution_clock::now();
+    std::cout << "Took " <<
+        std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << "ms" << std::endl;
     // Image x = v.posterise();
 
     // Rle rle = Rle(v);
     // rle.add_noise_rows(0.6);
     // Image x = rle.to_image();
 
-    // RelBlock r(v, 60);
+    std::cout << "Processing" << std::endl;
+    start = std::chrono::high_resolution_clock::now();
+    Image x = v.streak_up();
+
+    // RelBlock r(v, 249);
     // Image x = r.rel_to_image();
+    end = std::chrono::high_resolution_clock::now();
+    std::cout << "Took " <<
+        std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << "ms" << std::endl;
 
-    Image x = v.streak_down();
-
+    std::cout << "Encoding" << std::endl;
+    start = std::chrono::high_resolution_clock::now();
     encode("resources/out.png", x);
+    end = std::chrono::high_resolution_clock::now();
+    std::cout << "Took " <<
+        std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << "ms" << std::endl;
     return 0;
 }
