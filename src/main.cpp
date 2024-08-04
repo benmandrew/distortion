@@ -2,8 +2,7 @@
 #include <cassert>
 #include <chrono>
 
-#include "img.cpp"
-#include "main.h"
+#include "img.h"
 #include "lodepng.h"
 
 ImgData to_imgdata(std::vector<u_char> &data) {
@@ -62,15 +61,13 @@ void encode(const char* filename, Image &image) {
     }
 }
 
-void output_version(char *argv[]) {
-    std::cout << argv[0] << " Version "
-              << Distortion_VERSION_MAJOR << "."
-              << Distortion_VERSION_MINOR << std::endl;
+void output_help(char *argv[]) {
+    std::cout << "Usage: " << argv[0] << " [image.png]" << std::endl;
 }
 
 int main(int argc, char *argv[]) {
     if (argc < 2) {
-        output_version(argv);
+        output_help(argv);
         return 1;
     }
     auto start = std::chrono::high_resolution_clock::now();
@@ -87,7 +84,7 @@ int main(int argc, char *argv[]) {
 
     std::cout << "Processing" << std::endl;
     start = std::chrono::high_resolution_clock::now();
-    Image x = v.streak_up();
+    Image x = v.streak_down();
 
     // RelBlock r(v, 249);
     // Image x = r.rel_to_image();

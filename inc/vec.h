@@ -30,7 +30,7 @@ template <typename T> vec4_T<T> vec4_T<T>::add(vec4_T &x) {
     };
 }
 
-u_char saturating_sub(u_char x, u_char y) {
+inline u_char saturating_sub(u_char x, u_char y) {
     if (y > x) {
         return 0;
     }
@@ -73,7 +73,7 @@ using vec4 = vec4_T<u_char>;
 
 using ImgData = std::vector<vec4>;
 
-vec4_T<int> vec4_to_ints(vec4 &v) {
+inline vec4_T<int> vec4_to_ints(vec4 &v) {
     return vec4_T<int> {
         .r = static_cast<int>(v.r),
         .g = static_cast<int>(v.g),
@@ -82,7 +82,7 @@ vec4_T<int> vec4_to_ints(vec4 &v) {
     };
 }
 
-vec4 ints_to_vec4(vec4_T<int> &v) {
+inline vec4 ints_to_vec4(vec4_T<int> &v) {
     return vec4 {
         .r = static_cast<u_char>(v.r),
         .g = static_cast<u_char>(v.g),
