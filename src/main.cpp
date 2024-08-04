@@ -2,7 +2,9 @@
 #include <cassert>
 #include <chrono>
 
-#include "img.h"
+#include "image.h"
+#include "rle.h"
+#include "relblock.h"
 #include "lodepng.h"
 
 ImgData to_imgdata(std::vector<u_char> &data) {
@@ -75,7 +77,8 @@ int main(int argc, char *argv[]) {
     Image v = decode(argv[1]);
     auto end = std::chrono::high_resolution_clock::now();
     std::cout << "Took " <<
-        std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << "ms" << std::endl;
+              std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() <<
+              "ms" << std::endl;
     // Image x = v.posterise();
 
     // Rle rle = Rle(v);
@@ -90,13 +93,15 @@ int main(int argc, char *argv[]) {
     // Image x = r.rel_to_image();
     end = std::chrono::high_resolution_clock::now();
     std::cout << "Took " <<
-        std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << "ms" << std::endl;
+              std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() <<
+              "ms" << std::endl;
 
     std::cout << "Encoding" << std::endl;
     start = std::chrono::high_resolution_clock::now();
     encode("resources/out.png", x);
     end = std::chrono::high_resolution_clock::now();
     std::cout << "Took " <<
-        std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << "ms" << std::endl;
+              std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() <<
+              "ms" << std::endl;
     return 0;
 }

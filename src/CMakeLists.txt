@@ -6,7 +6,9 @@ include_directories(
 add_executable(
     Distortion
     main.cpp
-    img.cpp
+    image.cpp
+    rle.cpp
+    relblock.cpp
 )
 
 target_link_libraries(

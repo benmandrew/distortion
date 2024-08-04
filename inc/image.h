@@ -1,5 +1,5 @@
-#ifndef IMG_H
-#define IMG_H
+#ifndef IMAGE_H
+#define IMAGE_H
 
 #include <random>
 #include <functional>
