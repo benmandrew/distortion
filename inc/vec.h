@@ -17,7 +17,8 @@ struct vec4_T {
     vec4_T add(const vec4_T &x) const;
     vec4_T v_saturating_sub(const vec4_T &x) const;
     vec4_T sub(const vec4_T &x) const;
-    template <typename U> vec4_T scale(const U c) const;
+    template <typename U>
+    vec4_T scale(const U c) const;
     double luminance() const;
 
     vec4_T v_abs() const;
@@ -25,12 +26,10 @@ struct vec4_T {
 
 template <typename T>
 vec4_T<T> vec4_T<T>::add(const vec4_T &x) const {
-    return vec4_T{
-        .r = static_cast<u_char>(x.r + r),
-        .g = static_cast<u_char>(x.g + g),
-        .b = static_cast<u_char>(x.b + b),
-        .a = static_cast<u_char>(x.a + a)
-    };
+    return vec4_T{.r = static_cast<u_char>(x.r + r),
+                  .g = static_cast<u_char>(x.g + g),
+                  .b = static_cast<u_char>(x.b + b),
+                  .a = static_cast<u_char>(x.a + a)};
 }
 
 inline u_char saturating_sub(const u_char x, const u_char y) {
@@ -41,24 +40,19 @@ inline u_char saturating_sub(const u_char x, const u_char y) {
 }
 
 template <typename T>
-vec4_T<T> vec4_T<T>::v_saturating_sub(
-    const vec4_T &x) const {
-    return vec4_T{
-        .r = saturating_sub(r, x.r),
-        .g = saturating_sub(g, x.g),
-        .b = saturating_sub(b, x.b),
-        .a = saturating_sub(a, x.a)
-    };
+vec4_T<T> vec4_T<T>::v_saturating_sub(const vec4_T &x) const {
+    return vec4_T{.r = saturating_sub(r, x.r),
+                  .g = saturating_sub(g, x.g),
+                  .b = saturating_sub(b, x.b),
+                  .a = saturating_sub(a, x.a)};
 }
 
 template <typename T>
 vec4_T<T> vec4_T<T>::sub(const vec4_T &x) const {
-    return vec4_T{
-        .r = static_cast<u_char>(r - x.r),
-        .g = static_cast<u_char>(g - x.g),
-        .b = static_cast<u_char>(b - x.b),
-        .a = static_cast<u_char>(a - x.a)
-    };
+    return vec4_T{.r = static_cast<u_char>(r - x.r),
+                  .g = static_cast<u_char>(g - x.g),
+                  .b = static_cast<u_char>(b - x.b),
+                  .a = static_cast<u_char>(a - x.a)};
 }
 
 template <typename T>
@@ -74,8 +68,8 @@ vec4_T<T> vec4_T<T>::scale(const U c) const {
 
 template <typename T>
 double vec4_T<T>::luminance() const {
-    return 0.2126 * static_cast<double>(r) + 0.7152 * static_cast<double>
-           (g) + 0.0722 * static_cast<double>(b);
+    return 0.2126 * static_cast<double>(r) + 0.7152 * static_cast<double>(g) +
+           0.0722 * static_cast<double>(b);
 }
 
 template <typename T>
@@ -93,7 +87,7 @@ using vec4 = vec4_T<u_char>;
 using ImgData = std::vector<vec4>;
 
 inline vec4_T<int> vec4_to_ints(const vec4 &v) {
-    return vec4_T<int> {
+    return vec4_T<int>{
         .r = static_cast<int>(v.r),
         .g = static_cast<int>(v.g),
         .b = static_cast<int>(v.b),
@@ -102,7 +96,7 @@ inline vec4_T<int> vec4_to_ints(const vec4 &v) {
 }
 
 inline vec4 ints_to_vec4(const vec4_T<int> &v) {
-    return vec4 {
+    return vec4{
         .r = static_cast<u_char>(v.r),
         .g = static_cast<u_char>(v.g),
         .b = static_cast<u_char>(v.b),

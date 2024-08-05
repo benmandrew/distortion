@@ -4,7 +4,7 @@
 #include "image.h"
 
 class RelBlock {
-  public:
+   public:
     u_int w, h;
     std::vector<vec4> centers;
     std::vector<vec4_T<int>> rel_blocks;

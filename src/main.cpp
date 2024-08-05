@@ -1,18 +1,18 @@
-#include <iostream>
 #include <cassert>
 #include <chrono>
+#include <iostream>
 
 #include "image.h"
-#include "rle.h"
-#include "relblock.h"
-#include "sobel.h"
 #include "lodepng.h"
+#include "relblock.h"
+#include "rle.h"
+#include "sobel.h"
 
-ImgData to_imgdata(const std::vector<u_char> &data) {
+ImgData to_imgdata(const std::vector<u_char>& data) {
     assert(data.size() % 4 == 0);
     ImgData out(data.size() / 4);
     for (int i = 0; i < out.size(); i++) {
-        out[i] = vec4 {
+        out[i] = vec4{
             .r = data[4 * i],
             .g = data[4 * i + 1],
             .b = data[4 * i + 2],
@@ -22,10 +22,10 @@ ImgData to_imgdata(const std::vector<u_char> &data) {
     return out;
 }
 
-std::vector<u_char> to_data(const ImgData &data) {
+std::vector<u_char> to_data(const ImgData& data) {
     std::vector<u_char> out(data.size() * 4);
     for (int i = 0; i < data.size(); i++) {
-        const vec4 &v = data[i];
+        const vec4& v = data[i];
         out[4 * i] = v.r;
         out[4 * i + 1] = v.g;
         out[4 * i + 2] = v.b;
@@ -35,7 +35,7 @@ std::vector<u_char> to_data(const ImgData &data) {
 }
 
 // PNG file to RGBA pixel data
-Image decode(const char *filename) {
+Image decode(const char* filename) {
     std::vector<u_char> png, image;
     u_int width, height;
     u_int error = lodepng::load_file(png, filename);
@@ -43,15 +43,15 @@ Image decode(const char *filename) {
         error = lodepng::decode(image, width, height, png);
     }
     if (error) {
-        std::cerr << "decoder error " << error << ": " << lodepng_error_text(
-                      error) << std::endl;
+        std::cerr << "decoder error " << error << ": "
+                  << lodepng_error_text(error) << std::endl;
     }
     ImgData i = to_imgdata(image);
     return Image(i, width, height);
 }
 
 // RGBA pixel data to PNG file
-void encode(const char* filename, const Image &image) {
+void encode(const char* filename, const Image& image) {
     std::vector<u_char> png;
     const std::vector<u_char> data = to_data(image.data);
     u_char error = lodepng::encode(png, data, image.w, image.h);
@@ -59,16 +59,16 @@ void encode(const char* filename, const Image &image) {
         lodepng::save_file(png, filename);
     }
     if (error) {
-        std::cerr << "encoder error " << error << ": "<< lodepng_error_text(
-                      error) << std::endl;
+        std::cerr << "encoder error " << error << ": "
+                  << lodepng_error_text(error) << std::endl;
     }
 }
 
-void output_help(char *argv[]) {
+void output_help(char* argv[]) {
     std::cout << "Usage: " << argv[0] << " [image.png]" << std::endl;
 }
 
-int main(int argc, char *argv[]) {
+int main(int argc, char* argv[]) {
     if (argc < 2) {
         output_help(argv);
         return 1;
@@ -77,9 +77,11 @@ int main(int argc, char *argv[]) {
     std::cout << "Decoding" << std::endl;
     Image v = decode(argv[1]);
     auto end = std::chrono::high_resolution_clock::now();
-    std::cout << "Took " <<
-              std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() <<
-              "ms" << std::endl;
+    std::cout << "Took "
+              << std::chrono::duration_cast<std::chrono::milliseconds>(end -
+                                                                       start)
+                     .count()
+              << "ms" << std::endl;
     // Image x = v.posterise();
 
     // Rle rle = Rle(v);
@@ -94,16 +96,20 @@ int main(int argc, char *argv[]) {
     // RelBlock r(v, 249);
     // Image x = r.rel_to_image();
     end = std::chrono::high_resolution_clock::now();
-    std::cout << "Took " <<
-              std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() <<
-              "ms" << std::endl;
+    std::cout << "Took "
+              << std::chrono::duration_cast<std::chrono::milliseconds>(end -
+                                                                       start)
+                     .count()
+              << "ms" << std::endl;
 
     std::cout << "Encoding" << std::endl;
     start = std::chrono::high_resolution_clock::now();
     encode("resources/out.png", x);
     end = std::chrono::high_resolution_clock::now();
-    std::cout << "Took " <<
-              std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() <<
-              "ms" << std::endl;
+    std::cout << "Took "
+              << std::chrono::duration_cast<std::chrono::milliseconds>(end -
+                                                                       start)
+                     .count()
+              << "ms" << std::endl;
     return 0;
 }

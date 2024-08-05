@@ -9,7 +9,7 @@ Image Sobel::to_image() {
     return Image(out, w, h);
 }
 
-Sobel Sobel::new_horizontal(const Image &image) {
+Sobel Sobel::new_horizontal(const Image& image) {
     Sobel out;
     out.w = image.w;
     out.h = image.h;
@@ -17,7 +17,7 @@ Sobel Sobel::new_horizontal(const Image &image) {
     return out;
 }
 
-Sobel Sobel::new_vertical(const Image &image) {
+Sobel Sobel::new_vertical(const Image& image) {
     Sobel out;
     out.w = image.w;
     out.h = image.h;
@@ -25,7 +25,7 @@ Sobel Sobel::new_vertical(const Image &image) {
     return out;
 }
 
-std::vector<vec4_T<int>> Sobel::horizontal(const Image &image) {
+std::vector<vec4_T<int>> Sobel::horizontal(const Image& image) {
     std::vector<vec4_T<int>> inter(image.w * image.h);
     std::vector<vec4_T<int>> data(image.w * image.h);
     for (int i = 0; i < image.data.size(); i++) {
@@ -37,14 +37,10 @@ std::vector<vec4_T<int>> Sobel::horizontal(const Image &image) {
             if (i == 0 or i == image.w - 1 or j == 0 or j == image.h - 1) {
                 data[idx] = vec4_T<int>::zero;
             } else {
-                vec4_T<int> pos =
-                    inter[idx - image.w + 1].add(
-                        inter[idx + 1].scale(2.0).add(
-                            inter[idx + image.w + 1]));
-                vec4_T<int> neg =
-                    inter[idx - image.w - 1].add(
-                        inter[idx - 1].scale(2.0).add(
-                            inter[idx + image.w - 1]));
+                vec4_T<int> pos = inter[idx - image.w + 1].add(
+                    inter[idx + 1].scale(2.0).add(inter[idx + image.w + 1]));
+                vec4_T<int> neg = inter[idx - image.w - 1].add(
+                    inter[idx - 1].scale(2.0).add(inter[idx + image.w - 1]));
                 data[idx] = pos.sub(neg).scale(0.125);
             }
             data[idx].a = 255;
@@ -53,7 +49,7 @@ std::vector<vec4_T<int>> Sobel::horizontal(const Image &image) {
     return data;
 }
 
-std::vector<vec4_T<int>> Sobel::vertical(const Image &image) {
+std::vector<vec4_T<int>> Sobel::vertical(const Image& image) {
     std::vector<vec4_T<int>> inter(image.w * image.h);
     std::vector<vec4_T<int>> data(image.w * image.h);
     for (int i = 0; i < image.data.size(); i++) {
@@ -65,14 +61,12 @@ std::vector<vec4_T<int>> Sobel::vertical(const Image &image) {
             if (i == 0 or i == image.w - 1 or j == 0 or j == image.h - 1) {
                 data[idx] = vec4_T<int>::zero;
             } else {
-                vec4_T<int> pos =
-                    inter[idx - image.w - 1].add(
-                        inter[idx - image.w].scale(2.0).add(
-                            inter[idx - image.w + 1]));
-                vec4_T<int> neg =
-                    inter[idx + image.w - 1].add(
-                        inter[idx + image.w].scale(2.0).add(
-                            inter[idx + image.w + 1]));
+                vec4_T<int> pos = inter[idx - image.w - 1].add(
+                    inter[idx - image.w].scale(2.0).add(
+                        inter[idx - image.w + 1]));
+                vec4_T<int> neg = inter[idx + image.w - 1].add(
+                    inter[idx + image.w].scale(2.0).add(
+                        inter[idx + image.w + 1]));
                 data[idx] = pos.sub(neg).scale(0.125);
             }
             data[idx].a = 255;

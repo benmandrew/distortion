@@ -4,7 +4,7 @@
 #include "image.h"
 
 class Sobel {
-  public:
+   public:
     u_int w, h;
     std::vector<vec4_T<int>> data;
 

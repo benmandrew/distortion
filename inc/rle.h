@@ -6,7 +6,7 @@
 #include "image.h"
 
 class Rle {
-  public:
+   public:
     std::vector<size_t> lengths;
     ImgData colours;
     u_int w, h;
