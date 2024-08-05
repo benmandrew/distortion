@@ -92,7 +92,7 @@ using vec4 = vec4_T<u_char>;
 
 using ImgData = std::vector<vec4>;
 
-inline vec4_T<int> vec4_to_ints(vec4 &v) {
+inline vec4_T<int> vec4_to_ints(const vec4 &v) {
     return vec4_T<int> {
         .r = static_cast<int>(v.r),
         .g = static_cast<int>(v.g),
@@ -101,7 +101,7 @@ inline vec4_T<int> vec4_to_ints(vec4 &v) {
     };
 }
 
-inline vec4 ints_to_vec4(vec4_T<int> &v) {
+inline vec4 ints_to_vec4(const vec4_T<int> &v) {
     return vec4 {
         .r = static_cast<u_char>(v.r),
         .g = static_cast<u_char>(v.g),

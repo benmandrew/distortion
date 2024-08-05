@@ -11,11 +11,10 @@ class Rle {
     ImgData colours;
     u_int w, h;
 
-    Rle(Image &image);
-    Image to_image();
+    Rle(const Image &image);
+    Image to_image() const;
 
-    void encode(ImgData &data);
-    static ImgData decode(std::vector<size_t> &data, u_int w, u_int h);
+    void encode(const ImgData &data);
 
     void add_noise(double stddev);
     void add_noise_rows(double stddev);

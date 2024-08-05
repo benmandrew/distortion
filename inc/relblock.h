@@ -10,13 +10,12 @@ class RelBlock {
     std::vector<vec4_T<int>> rel_blocks;
     u_int block_width;
 
-    RelBlock(Image &image, u_int block_width);
-    Image to_image();
+    RelBlock(const Image &image, u_int block_width);
+    Image to_image() const;
+    Image rel_to_image() const;
 
-    std::vector<vec4> get_centers(ImgData &data);
-    std::vector<vec4_T<int>> get_relative_blocks(ImgData &data);
-
-    Image rel_to_image();
+    std::vector<vec4> get_centers(const ImgData &data) const;
+    std::vector<vec4_T<int>> get_relative_blocks(const ImgData &data) const;
 };
 
 #endif

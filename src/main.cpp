@@ -8,7 +8,7 @@
 #include "sobel.h"
 #include "lodepng.h"
 
-ImgData to_imgdata(std::vector<u_char> &data) {
+ImgData to_imgdata(const std::vector<u_char> &data) {
     assert(data.size() % 4 == 0);
     ImgData out(data.size() / 4);
     for (int i = 0; i < out.size(); i++) {
@@ -22,10 +22,10 @@ ImgData to_imgdata(std::vector<u_char> &data) {
     return out;
 }
 
-std::vector<u_char> to_data(ImgData &data) {
+std::vector<u_char> to_data(const ImgData &data) {
     std::vector<u_char> out(data.size() * 4);
     for (int i = 0; i < data.size(); i++) {
-        vec4 &v = data[i];
+        const vec4 &v = data[i];
         out[4 * i] = v.r;
         out[4 * i + 1] = v.g;
         out[4 * i + 2] = v.b;
@@ -51,9 +51,9 @@ Image decode(const char *filename) {
 }
 
 // RGBA pixel data to PNG file
-void encode(const char* filename, Image &image) {
+void encode(const char* filename, const Image &image) {
     std::vector<u_char> png;
-    std::vector<u_char> data = to_data(image.data);
+    const std::vector<u_char> data = to_data(image.data);
     u_char error = lodepng::encode(png, data, image.w, image.h);
     if (!error) {
         lodepng::save_file(png, filename);

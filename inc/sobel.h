@@ -10,11 +10,11 @@ class Sobel {
 
     Image to_image();
 
-    static Sobel new_horizontal(Image &image);
-    static Sobel new_vertical(Image &image);
+    static Sobel new_horizontal(const Image &image);
+    static Sobel new_vertical(const Image &image);
 
-    static std::vector<vec4_T<int>> horizontal(Image &image);
-    static std::vector<vec4_T<int>> vertical(Image &image);
+    static std::vector<vec4_T<int>> horizontal(const Image &image);
+    static std::vector<vec4_T<int>> vertical(const Image &image);
 };
 
 #endif

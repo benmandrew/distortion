@@ -1,6 +1,6 @@
 #include "relblock.h"
 
-RelBlock::RelBlock(Image &image, u_int block_width) {
+RelBlock::RelBlock(const Image &image, u_int block_width) {
     this->w = image.w;
     this->h = image.h;
     this->block_width = block_width;
@@ -8,7 +8,7 @@ RelBlock::RelBlock(Image &image, u_int block_width) {
     this->rel_blocks = get_relative_blocks(image.data);
 }
 
-std::vector<vec4> RelBlock::get_centers(ImgData &data) {
+std::vector<vec4> RelBlock::get_centers(const ImgData &data) const {
     u_int center_offset = block_width / 2;
     size_t n_blocks_w = w / block_width;
     size_t n_blocks_h = h / block_width;
@@ -24,7 +24,8 @@ std::vector<vec4> RelBlock::get_centers(ImgData &data) {
     return centers;
 }
 
-std::vector<vec4_T<int>> RelBlock::get_relative_blocks(ImgData &data) {
+std::vector<vec4_T<int>> RelBlock::get_relative_blocks(const ImgData &data)
+const {
     size_t n_blocks_w = w / block_width;
     size_t n_blocks_h = h / block_width;
     std::vector<vec4_T<int>> rel_blocks(data.size(), vec4_T<int>::zero);
@@ -43,7 +44,7 @@ std::vector<vec4_T<int>> RelBlock::get_relative_blocks(ImgData &data) {
     return rel_blocks;
 }
 
-Image RelBlock::to_image() {
+Image RelBlock::to_image() const {
     size_t n_blocks_w = w / block_width;
     size_t n_blocks_h = h / block_width;
     ImgData data(rel_blocks.size(), vec4::zero);
@@ -62,7 +63,7 @@ Image RelBlock::to_image() {
     return Image(data, w, h);
 }
 
-Image RelBlock::rel_to_image() {
+Image RelBlock::rel_to_image() const {
     ImgData data(rel_blocks.size(), vec4::zero);
     for (int i = 0; i < rel_blocks.size(); i++) {
         vec4_T<int> v = rel_blocks[i].v_abs();

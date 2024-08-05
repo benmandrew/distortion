@@ -1,20 +1,20 @@
 #include "rle.h"
 
-void Rle::encode(ImgData &data) {
-    vec4 *v = &data[0];
+void Rle::encode(const ImgData &data) {
+    const vec4 &v = data[0];
     size_t runlength = 1;
     size_t i = 1;
     size_t len = data.size();
     std::vector<size_t> lengths;
     ImgData colours;
     while (i < len) {
-        vec4 *v_tmp = &data[i];
-        if (v->r != v_tmp->r
-                || v->g != v_tmp->g
-                || v->b != v_tmp->b
-                || v->a != v_tmp->a) {
+        const vec4 &v_tmp = data[i];
+        if (v.r != v_tmp.r
+                || v.g != v_tmp.g
+                || v.b != v_tmp.b
+                || v.a != v_tmp.a) {
             lengths.push_back(runlength);
-            colours.push_back(*v);
+            colours.push_back(v);
             runlength = 1;
         } else {
             runlength++;
@@ -22,16 +22,16 @@ void Rle::encode(ImgData &data) {
         i++;
     }
     lengths.push_back(runlength);
-    colours.push_back(*v);
+    colours.push_back(v);
 }
 
-Rle::Rle(Image &image) {
+Rle::Rle(const Image &image) {
     this->w = image.w;
     this->h = image.h;
     encode(image.data);
 }
 
-Image Rle::to_image() {
+Image Rle::to_image() const {
     ImgData out;
     size_t rl_len = lengths.size();
     for (int i = 0; i < rl_len; i++) {

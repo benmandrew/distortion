@@ -9,7 +9,7 @@ Image Sobel::to_image() {
     return Image(out, w, h);
 }
 
-Sobel Sobel::new_horizontal(Image &image) {
+Sobel Sobel::new_horizontal(const Image &image) {
     Sobel out;
     out.w = image.w;
     out.h = image.h;
@@ -17,7 +17,7 @@ Sobel Sobel::new_horizontal(Image &image) {
     return out;
 }
 
-Sobel Sobel::new_vertical(Image &image) {
+Sobel Sobel::new_vertical(const Image &image) {
     Sobel out;
     out.w = image.w;
     out.h = image.h;
@@ -25,7 +25,7 @@ Sobel Sobel::new_vertical(Image &image) {
     return out;
 }
 
-std::vector<vec4_T<int>> Sobel::horizontal(Image &image) {
+std::vector<vec4_T<int>> Sobel::horizontal(const Image &image) {
     std::vector<vec4_T<int>> inter(image.w * image.h);
     std::vector<vec4_T<int>> data(image.w * image.h);
     for (int i = 0; i < image.data.size(); i++) {
@@ -53,7 +53,7 @@ std::vector<vec4_T<int>> Sobel::horizontal(Image &image) {
     return data;
 }
 
-std::vector<vec4_T<int>> Sobel::vertical(Image &image) {
+std::vector<vec4_T<int>> Sobel::vertical(const Image &image) {
     std::vector<vec4_T<int>> inter(image.w * image.h);
     std::vector<vec4_T<int>> data(image.w * image.h);
     for (int i = 0; i < image.data.size(); i++) {
