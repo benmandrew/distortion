@@ -5,6 +5,7 @@
 #include "image.h"
 #include "rle.h"
 #include "relblock.h"
+#include "sobel.h"
 #include "lodepng.h"
 
 ImgData to_imgdata(std::vector<u_char> &data) {
@@ -87,7 +88,8 @@ int main(int argc, char *argv[]) {
 
     std::cout << "Processing" << std::endl;
     start = std::chrono::high_resolution_clock::now();
-    Image x = v.streak_down();
+    Image y = Sobel::new_horizontal(v).to_image();
+    Image x = v.streak_down(y);
 
     // RelBlock r(v, 249);
     // Image x = r.rel_to_image();

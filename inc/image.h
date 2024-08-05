@@ -18,11 +18,15 @@ class Image {
     size_t size();
     Image posterise(bool ignore_alpha);
     Image streak(std::vector<int> h_iter, std::vector<int> v_iter,
-                 std::function<std::optional<int>(int, int, int, int, int)> get_streak_idx);
-    Image streak_down();
-    Image streak_up();
-    Image streak_left();
-    Image streak_right();
+                 std::function<std::optional<int>(int, int, int, int, int)> get_streak_idx,
+                 std::function<int(const vec4&)> measure,
+                 const std::optional<Image> &measure_source = std::nullopt);
+    Image streak_down(const std::optional<Image> &measure_source = std::nullopt);
+    Image streak_up(const std::optional<Image> &measure_source = std::nullopt);
+    Image streak_left(const std::optional<Image> &measure_source = std::nullopt);
+    Image streak_right(const std::optional<Image> &measure_source = std::nullopt);
+
+    Image sobel_horizontal() const;
 };
 
 #endif

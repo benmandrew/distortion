@@ -44,17 +44,23 @@ Image Image::posterise(bool ignore_alpha = true) {
 }
 
 double get_streak_len(double lum) {
-    return pow(lum / 256.0, 6.0) * 512.0;
+    return pow(lum / 256.0, 32.0) * 100.0;
 }
 
 Image Image::streak(std::vector<int> h_iter, std::vector<int> v_iter,
-                    std::function<std::optional<int>(int, int, int, int, int)> get_streak_idx) {
+                    std::function<std::optional<int>(int, int, int, int, int)> get_streak_idx,
+                    std::function<int(const vec4&)> measure,
+                    const std::optional<Image> &measure_source) {
     Image out(w, h);
     for (int j : v_iter) {
         for (int i : h_iter) {
             size_t idx = j * w + i;
-            vec4 *v_o = &data[idx];
-            u_char streak_len = get_streak_len(v_o->luminance());
+            vec4 &v_o = data[idx];
+            vec4 v_m = data[idx];
+            if (measure_source.has_value()) {
+                v_m = measure_source.value().data[idx];
+            }
+            u_char streak_len = get_streak_len(measure(v_m));
             streak_len = std::max(static_cast<u_char>(1),
                                   static_cast<u_char>(streak_len));
             for (int k = 0; k < streak_len; k++) {
@@ -63,14 +69,14 @@ Image Image::streak(std::vector<int> h_iter, std::vector<int> v_iter,
                     break;
                 }
                 int s_idx = s_idx_op.value();
-                out.data[s_idx] = *v_o;
+                out.data[s_idx] = v_o;
             }
         }
     }
     return out;
 }
 
-Image Image::streak_down() {
+Image Image::streak_down(const std::optional<Image> &measure_source) {
     std::vector<int> h_iter(w), v_iter(h);
     std::iota(h_iter.begin(), h_iter.end(), 0);
     std::iota(v_iter.rbegin(), v_iter.rend(), 0);
@@ -81,10 +87,13 @@ Image Image::streak_down() {
         }
         return (j + k) * w + i;
     };
-    return streak(h_iter, v_iter, get_streak_pos);
+    auto measure = [](const vec4& v) {
+        return v.luminance();
+    };
+    return streak(h_iter, v_iter, get_streak_pos, measure, measure_source);
 }
 
-Image Image::streak_up() {
+Image Image::streak_up(const std::optional<Image> &measure_source) {
     std::vector<int> h_iter(w), v_iter(h);
     std::iota(h_iter.begin(), h_iter.end(), 0);
     std::iota(v_iter.begin(), v_iter.end(), 0);
@@ -95,10 +104,13 @@ Image Image::streak_up() {
         }
         return (j - k) * w + i;
     };
-    return streak(h_iter, v_iter, get_streak_pos);
+    auto measure = [](const vec4& v) {
+        return v.luminance();
+    };
+    return streak(h_iter, v_iter, get_streak_pos, measure, measure_source);
 }
 
-Image Image::streak_left() {
+Image Image::streak_left(const std::optional<Image> &measure_source) {
     std::vector<int> h_iter(w), v_iter(h);
     std::iota(h_iter.begin(), h_iter.end(), 0);
     std::iota(v_iter.begin(), v_iter.end(), 0);
@@ -109,10 +121,13 @@ Image Image::streak_left() {
         }
         return j * w + i - k;
     };
-    return streak(h_iter, v_iter, get_streak_pos);
+    auto measure = [](const vec4& v) {
+        return v.luminance();
+    };
+    return streak(h_iter, v_iter, get_streak_pos, measure, measure_source);
 }
 
-Image Image::streak_right() {
+Image Image::streak_right(const std::optional<Image> &measure_source) {
     std::vector<int> h_iter(w), v_iter(h);
     std::iota(h_iter.rbegin(), h_iter.rend(), 0);
     std::iota(v_iter.begin(), v_iter.end(), 0);
@@ -123,5 +138,8 @@ Image Image::streak_right() {
         }
         return j * w + i + k;
     };
-    return streak(h_iter, v_iter, get_streak_pos);
+    auto measure = [](const vec4& v) {
+        return v.luminance();
+    };
+    return streak(h_iter, v_iter, get_streak_pos, measure, measure_source);
 }

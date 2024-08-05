@@ -3,7 +3,8 @@
 
 #include "lodepng.h"
 
-template <typename T> struct vec4_T {
+template <typename T>
+struct vec4_T {
     T r, g, b, a;
 
     static constexpr const vec4_T zero = {
@@ -13,15 +14,17 @@ template <typename T> struct vec4_T {
         .a = static_cast<T>(0),
     };
 
-    vec4_T add(vec4_T &x);
-    vec4_T saturating_sub(vec4_T &x);
-    vec4_T sub(vec4_T &x);
-    double luminance();
+    vec4_T add(const vec4_T &x) const;
+    vec4_T v_saturating_sub(const vec4_T &x) const;
+    vec4_T sub(const vec4_T &x) const;
+    template <typename U> vec4_T scale(const U c) const;
+    double luminance() const;
 
-    vec4_T v_abs();
+    vec4_T v_abs() const;
 };
 
-template <typename T> vec4_T<T> vec4_T<T>::add(vec4_T &x) {
+template <typename T>
+vec4_T<T> vec4_T<T>::add(const vec4_T &x) const {
     return vec4_T{
         .r = static_cast<u_char>(x.r + r),
         .g = static_cast<u_char>(x.g + g),
@@ -30,14 +33,16 @@ template <typename T> vec4_T<T> vec4_T<T>::add(vec4_T &x) {
     };
 }
 
-inline u_char saturating_sub(u_char x, u_char y) {
+inline u_char saturating_sub(const u_char x, const u_char y) {
     if (y > x) {
         return 0;
     }
     return x - y;
 }
 
-template <typename T> vec4_T<T> vec4_T<T>::saturating_sub(vec4_T &x) {
+template <typename T>
+vec4_T<T> vec4_T<T>::v_saturating_sub(
+    const vec4_T &x) const {
     return vec4_T{
         .r = saturating_sub(r, x.r),
         .g = saturating_sub(g, x.g),
@@ -46,21 +51,35 @@ template <typename T> vec4_T<T> vec4_T<T>::saturating_sub(vec4_T &x) {
     };
 }
 
-template <typename T> vec4_T<T> vec4_T<T>::sub(vec4_T &x) {
+template <typename T>
+vec4_T<T> vec4_T<T>::sub(const vec4_T &x) const {
     return vec4_T{
-        .r = r - x.r,
-        .g = g - x.g,
-        .b = b - x.b,
-        .a = a - x.a
+        .r = static_cast<u_char>(r - x.r),
+        .g = static_cast<u_char>(g - x.g),
+        .b = static_cast<u_char>(b - x.b),
+        .a = static_cast<u_char>(a - x.a)
     };
 }
 
-template <typename T> double vec4_T<T>::luminance() {
+template <typename T>
+template <typename U>
+vec4_T<T> vec4_T<T>::scale(const U c) const {
+    return vec4_T{
+        .r = static_cast<T>(c * static_cast<U>(r)),
+        .g = static_cast<T>(c * static_cast<U>(g)),
+        .b = static_cast<T>(c * static_cast<U>(b)),
+        .a = static_cast<T>(c * static_cast<U>(a)),
+    };
+}
+
+template <typename T>
+double vec4_T<T>::luminance() const {
     return 0.2126 * static_cast<double>(r) + 0.7152 * static_cast<double>
            (g) + 0.0722 * static_cast<double>(b);
 }
 
-template <typename T> vec4_T<T> vec4_T<T>::v_abs() {
+template <typename T>
+vec4_T<T> vec4_T<T>::v_abs() const {
     return vec4_T{
         .r = abs(r),
         .g = abs(g),
