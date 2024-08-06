@@ -31,7 +31,7 @@ class Image {
     Image streak_right(
         const std::optional<Image> &measure_source = std::nullopt) const;
 
-    Image sobel_horizontal() const;
+    Image add(const Image &other, double other_ratio) const;
 };
 
 #endif

@@ -2,11 +2,11 @@
 #include <chrono>
 #include <iostream>
 
+#include "filter.h"
 #include "image.h"
 #include "lodepng.h"
 #include "relblock.h"
 #include "rle.h"
-#include "sobel.h"
 
 ImgData to_imgdata(const std::vector<u_char>& data) {
     assert(data.size() % 4 == 0);
@@ -69,6 +69,18 @@ void output_help(char* argv[]) {
 }
 
 int main(int argc, char* argv[]) {
+    // std::vector<vec4> pl;
+    // for (int i = 0; i < 8; i++) {
+    //     pl.push_back(vec4::zero);
+    // }
+    // for (int i = 0; i < 8; i++) {
+    //     pl.push_back(vec4::create(128, 128, 128, 128));
+    // }
+    // Image p = Image(pl, 4, 4);
+    // print_image(pl, 4, 4);
+    // Image pf = Filter::new_gaussian(p).to_abs_image();
+    // print_image(pf.data, 4, 4);
+
     if (argc < 2) {
         output_help(argv);
         return 1;
@@ -90,8 +102,12 @@ int main(int argc, char* argv[]) {
 
     std::cout << "Processing" << std::endl;
     start = std::chrono::high_resolution_clock::now();
-    Image y = Sobel::new_horizontal(v).to_image();
-    Image x = v.streak_down(y);
+    Image y = Filter::box(v).to_abs_image();
+    Filter lap = Filter::laplacian(y);
+    // lap.scale(4.0);
+    Image x = lap.to_abs_image();
+    // Image x = Filter::box(lapi).to_abs_image();
+    // Image x = v.streak_up(z);
 
     // RelBlock r(v, 249);
     // Image x = r.rel_to_image();

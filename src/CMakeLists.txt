@@ -9,7 +9,7 @@ add_executable(
     image.cpp
     rle.cpp
     relblock.cpp
-    sobel.cpp
+    filter.cpp
 )
 
 target_link_libraries(

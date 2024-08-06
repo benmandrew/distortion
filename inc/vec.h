@@ -14,6 +14,11 @@ struct vec4_T {
         .a = static_cast<T>(0),
     };
 
+    template <typename U>
+    static vec4_T create(U r, U g, U b, U a);
+
+    void print() const;
+
     vec4_T add(const vec4_T &x) const;
     vec4_T v_saturating_sub(const vec4_T &x) const;
     vec4_T sub(const vec4_T &x) const;
@@ -22,17 +27,45 @@ struct vec4_T {
     double luminance() const;
 
     vec4_T v_abs() const;
+    vec4_T v_min_zero() const;
+    vec4_T smooth_cap(double half = 127.0, double max = 255.0) const;
 };
 
 template <typename T>
-vec4_T<T> vec4_T<T>::add(const vec4_T &x) const {
-    return vec4_T{.r = static_cast<u_char>(x.r + r),
-                  .g = static_cast<u_char>(x.g + g),
-                  .b = static_cast<u_char>(x.b + b),
-                  .a = static_cast<u_char>(x.a + a)};
+template <typename U>
+vec4_T<T> vec4_T<T>::create(U r, U g, U b, U a) {
+    return vec4_T{
+        .r = static_cast<T>(r),
+        .g = static_cast<T>(g),
+        .b = static_cast<T>(b),
+        .a = static_cast<T>(a),
+    };
 }
 
-inline u_char saturating_sub(const u_char x, const u_char y) {
+#include <iomanip>
+#include <iostream>
+
+template <typename T>
+void print_image(const std::vector<vec4_T<T>> &data, int w, int h) {
+    for (int j = 0; j < h; j++) {
+        for (int i = 0; i < w; i++) {
+            int idx = j * w + i;
+            std::cout << std::setfill(' ') << std::setw(4) << +data[idx].r;
+        }
+        std::cout << std::endl;
+    }
+}
+
+template <typename T>
+vec4_T<T> vec4_T<T>::add(const vec4_T &x) const {
+    return vec4_T{.r = static_cast<T>(x.r + r),
+                  .g = static_cast<T>(x.g + g),
+                  .b = static_cast<T>(x.b + b),
+                  .a = static_cast<T>(x.a + a)};
+}
+
+template <typename T>
+inline T saturating_sub(const T x, const T y) {
     if (y > x) {
         return 0;
     }
@@ -49,10 +82,7 @@ vec4_T<T> vec4_T<T>::v_saturating_sub(const vec4_T &x) const {
 
 template <typename T>
 vec4_T<T> vec4_T<T>::sub(const vec4_T &x) const {
-    return vec4_T{.r = static_cast<u_char>(r - x.r),
-                  .g = static_cast<u_char>(g - x.g),
-                  .b = static_cast<u_char>(b - x.b),
-                  .a = static_cast<u_char>(a - x.a)};
+    return vec4_T{.r = r - x.r, .g = g - x.g, .b = b - x.b, .a = a - x.a};
 }
 
 template <typename T>
@@ -62,7 +92,8 @@ vec4_T<T> vec4_T<T>::scale(const U c) const {
         .r = static_cast<T>(c * static_cast<U>(r)),
         .g = static_cast<T>(c * static_cast<U>(g)),
         .b = static_cast<T>(c * static_cast<U>(b)),
-        .a = static_cast<T>(c * static_cast<U>(a)),
+        // .a = static_cast<T>(c * static_cast<U>(a)),
+        .a = 255,
     };
 }
 
@@ -79,6 +110,30 @@ vec4_T<T> vec4_T<T>::v_abs() const {
         .g = abs(g),
         .b = abs(b),
         .a = abs(a),
+    };
+}
+
+template <typename T>
+vec4_T<T> vec4_T<T>::v_min_zero() const {
+    return vec4_T{
+        .r = std::min(r, static_cast<T>(0)),
+        .g = std::min(g, static_cast<T>(0)),
+        .b = std::min(b, static_cast<T>(0)),
+        .a = std::min(a, static_cast<T>(0)),
+    };
+}
+
+template <typename T>
+vec4_T<T> vec4_T<T>::smooth_cap(double half, double max) const {
+    double rd = static_cast<double>(r);
+    double gd = static_cast<double>(g);
+    double bd = static_cast<double>(b);
+    double ad = static_cast<double>(a);
+    return vec4_T{
+        .r = static_cast<T>(max * rd / (rd + half)),
+        .g = static_cast<T>(max * gd / (gd + half)),
+        .b = static_cast<T>(max * bd / (bd + half)),
+        .a = 255,
     };
 }
 

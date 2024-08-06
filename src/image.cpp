@@ -39,7 +39,7 @@ Image Image::posterise(bool ignore_alpha = true) const {
     return out;
 }
 
-double get_streak_len(double lum) { return pow(lum / 256.0, 32.0) * 100.0; }
+double get_streak_len(double lum) { return pow(lum / 256.0, 5.0) * 250.0; }
 
 Image Image::streak(
     const std::vector<int> h_iter, const std::vector<int> v_iter,
@@ -130,4 +130,13 @@ Image Image::streak_right(const std::optional<Image>& measure_source) const {
     };
     auto measure = [](const vec4& v) { return v.luminance(); };
     return streak(h_iter, v_iter, get_streak_pos, measure, measure_source);
+}
+
+Image Image::add(const Image& other, double other_ratio) const {
+    Image out(w, h);
+    for (int i = 0; i < data.size(); i++) {
+        out.data[i] = (data[i].scale(1.0 - other_ratio))
+                          .add(other.data[i].scale(other_ratio));
+    }
+    return out;
 }
