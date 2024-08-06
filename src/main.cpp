@@ -8,11 +8,11 @@
 #include "relblock.h"
 #include "rle.h"
 
-ImgData to_imgdata(const std::vector<u_char>& data) {
+std::vector<ivec4> to_vectors(const std::vector<u_char>& data) {
     assert(data.size() % 4 == 0);
-    ImgData out(data.size() / 4);
+    std::vector<ivec4> out(data.size() / 4);
     for (int i = 0; i < out.size(); i++) {
-        out[i] = vec4{
+        out[i] = ivec4{
             .r = data[4 * i],
             .g = data[4 * i + 1],
             .b = data[4 * i + 2],
@@ -22,10 +22,10 @@ ImgData to_imgdata(const std::vector<u_char>& data) {
     return out;
 }
 
-std::vector<u_char> to_data(const ImgData& data) {
+std::vector<u_char> to_data(const std::vector<ivec4>& data) {
     std::vector<u_char> out(data.size() * 4);
     for (int i = 0; i < data.size(); i++) {
-        const vec4& v = data[i];
+        const auto& v = data[i];
         out[4 * i] = v.r;
         out[4 * i + 1] = v.g;
         out[4 * i + 2] = v.b;
@@ -46,7 +46,7 @@ Image decode(const char* filename) {
         std::cerr << "decoder error " << error << ": "
                   << lodepng_error_text(error) << std::endl;
     }
-    ImgData i = to_imgdata(image);
+    auto i = to_vectors(image);
     return Image(i, width, height);
 }
 
@@ -68,6 +68,22 @@ void output_help(char* argv[]) {
     std::cout << "Usage: " << argv[0] << " [image.png]" << std::endl;
 }
 
+#define INIT_TIMER()                                        \
+    auto start = std::chrono::high_resolution_clock::now(); \
+    auto end = std::chrono::high_resolution_clock::now();
+
+#define START_TIMER(s)                                 \
+    start = std::chrono::high_resolution_clock::now(); \
+    std::cout << s << std::endl;
+
+#define END_TIMER()                                                           \
+    end = std::chrono::high_resolution_clock::now();                          \
+    std::cout << "Took "                                                      \
+              << std::chrono::duration_cast<std::chrono::milliseconds>(end -  \
+                                                                       start) \
+                     .count()                                                 \
+              << "ms" << std::endl;
+
 int main(int argc, char* argv[]) {
     // std::vector<vec4> pl;
     // for (int i = 0; i < 8; i++) {
@@ -85,47 +101,19 @@ int main(int argc, char* argv[]) {
         output_help(argv);
         return 1;
     }
-    auto start = std::chrono::high_resolution_clock::now();
-    std::cout << "Decoding" << std::endl;
+    INIT_TIMER();
+    START_TIMER("Decoding");
     Image v = decode(argv[1]);
-    auto end = std::chrono::high_resolution_clock::now();
-    std::cout << "Took "
-              << std::chrono::duration_cast<std::chrono::milliseconds>(end -
-                                                                       start)
-                     .count()
-              << "ms" << std::endl;
-    // Image x = v.posterise();
+    END_TIMER();
 
-    // Rle rle = Rle(v);
-    // rle.add_noise_rows(0.6);
-    // Image x = rle.to_image();
+    START_TIMER("Processing");
+    Image y = Filter::box(v).abs().to_image();
+    Image z = Filter::laplacian(y).abs().scale(10).to_image();
+    Image x = v.streak_up(z);
+    END_TIMER();
 
-    std::cout << "Processing" << std::endl;
-    start = std::chrono::high_resolution_clock::now();
-    Image y = Filter::box(v).to_abs_image();
-    Filter lap = Filter::laplacian(y);
-    // lap.scale(4.0);
-    Image x = lap.to_abs_image();
-    // Image x = Filter::box(lapi).to_abs_image();
-    // Image x = v.streak_up(z);
-
-    // RelBlock r(v, 249);
-    // Image x = r.rel_to_image();
-    end = std::chrono::high_resolution_clock::now();
-    std::cout << "Took "
-              << std::chrono::duration_cast<std::chrono::milliseconds>(end -
-                                                                       start)
-                     .count()
-              << "ms" << std::endl;
-
-    std::cout << "Encoding" << std::endl;
-    start = std::chrono::high_resolution_clock::now();
+    START_TIMER("Encoding");
     encode("resources/out.png", x);
-    end = std::chrono::high_resolution_clock::now();
-    std::cout << "Took "
-              << std::chrono::duration_cast<std::chrono::milliseconds>(end -
-                                                                       start)
-                     .count()
-              << "ms" << std::endl;
+    END_TIMER();
     return 0;
 }

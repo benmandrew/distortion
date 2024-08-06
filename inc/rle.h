@@ -7,14 +7,14 @@
 
 class Rle {
    public:
-    std::vector<size_t> lengths;
-    ImgData colours;
-    u_int w, h;
+    std::vector<int> lengths;
+    std::vector<ivec4> colours;
+    int w, h;
 
-    Rle(const Image &image);
+    Rle(const Image& image);
     Image to_image() const;
 
-    void encode(const ImgData &data);
+    void encode(const std::vector<ivec4>& data);
 
     void add_noise(double stddev);
     void add_noise_rows(double stddev);

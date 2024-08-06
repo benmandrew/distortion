@@ -14,45 +14,38 @@ Kernel::Kernel(std::vector<int> kernel, int w, int h) {
     this->data = kernel;
 }
 
-Filter::Filter(std::vector<vec4_T<int>> data, int w, int h) {
+Filter::Filter(std::vector<ivec4> data, int w, int h) {
     this->w = w;
     this->h = h;
     this->data = data;
 }
 
-Image Filter::to_abs_image() const {
-    ImgData out(w * h);
-    for (int i = 0; i < data.size(); i++) {
-        vec4_T<int> v = data[i].v_abs().scale(3);
-        out[i] = ints_to_vec4(v);
-        out[i].a = 255;
-    }
-    return Image(out, w, h);
+Filter& Filter::abs() {
+    auto f = [](ivec4& v) { return v.v_abs(); };
+    std::transform(data.begin(), data.end(), data.begin(), f);
+    return *this;
 }
+
+Image Filter::to_image() { return Image(data, w, h); }
 
 Image Filter::to_min_zero_image() const {
-    ImgData out(w * h);
+    std::vector<ivec4> out(w * h);
     for (int i = 0; i < data.size(); i++) {
-        vec4_T<int> v = data[i].v_min_zero();
-        out[i] = ints_to_vec4(v);
+        out[i] = data[i].v_min_zero();
     }
     return Image(out, w, h);
 }
 
-void Filter::scale(double c) {
-    for (int i = 0; i < data.size(); i++) {
-        data[i].scale(c);
-    }
+Filter& Filter::scale(double c) {
+    auto f = [c](ivec4& v) { return v.scale(c); };
+    std::transform(data.begin(), data.end(), data.begin(), f);
+    return *this;
 }
 
 #include <numeric>
 
 Filter apply_filter(const Image& image, const Kernel& kernel) {
-    std::vector<vec4_T<int>> inter(image.w * image.h);
-    auto data = std::vector<vec4_T<int>>(image.w * image.h);
-    for (int i = 0; i < image.data.size(); i++) {
-        inter[i] = vec4_to_ints(image.data[i]);
-    }
+    auto data = std::vector<ivec4>(image.w * image.h);
     double kmag = 0.0;
     for (int v : kernel.data) {
         kmag += static_cast<double>(abs(v));
@@ -62,23 +55,18 @@ Filter apply_filter(const Image& image, const Kernel& kernel) {
             int idx = j * image.w + i;
             if (i < kernel.w / 2 or i >= image.w - kernel.w / 2 or
                 j < kernel.h / 2 or j >= image.h - kernel.h / 2) {
-                data[idx] = vec4_T<int>::zero;
+                data[idx] = ivec4::zero;
             } else {
-                auto v = vec4_T<int>::zero;
+                auto v = ivec4::zero;
                 for (int kj = 0; kj < kernel.h; kj++) {
                     for (int ki = 0; ki < kernel.w; ki++) {
-                        // std::cout << +ki << " " << +kj << " " << (ki -
-                        // kernel.h / 2) << " " << (kj - kernel.h / 2) <<
-                        // std::endl;
                         int kidx = idx + (kj - kernel.h / 2) * image.w +
                                    (ki - kernel.w / 2);
-                        v = v.add(
-                            inter[kidx].scale(kernel.data[kj * kernel.w + ki]));
+                        v = v.add(image.data[kidx].scale(
+                            kernel.data[kj * kernel.w + ki]));
                     }
                 }
                 data[idx] = v.scale(1.0 / kmag);
-                // std::cout << +kmag << " " << +v.r << " " << +data[idx].r <<
-                // std::endl;
             }
             data[idx].a = 255;
         }
@@ -87,12 +75,12 @@ Filter apply_filter(const Image& image, const Kernel& kernel) {
 }
 
 Filter Filter::sobel_horizontal(const Image& image) {
-    std::vector<int> k = {-1, -1, -1, -1, 8, -1, -1, -1, -1};
+    std::vector<int> k = {-1, 0, 1, -2, 0, 2, -1, 0, 1};
     return apply_filter(image, Kernel(k, 3, 3));
 }
 
 Filter Filter::sobel_vertical(const Image& image) {
-    std::vector<int> k = {-1, -1, -1, -1, 8, -1, -1, -1, -1};
+    std::vector<int> k = {-1, -2, -1, 0, 0, 0, 1, 2, 1};
     return apply_filter(image, Kernel(k, 3, 3));
 }
 
