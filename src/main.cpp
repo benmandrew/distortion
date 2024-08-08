@@ -2,7 +2,6 @@
 #include <chrono>
 #include <iostream>
 
-#include "filter.h"
 #include "image.h"
 #include "lodepng.h"
 #include "relblock.h"
@@ -107,9 +106,8 @@ int main(int argc, char* argv[]) {
     END_TIMER();
 
     START_TIMER("Processing");
-    Image y = Filter::box(v).abs().to_image();
-    Image z = Filter::laplacian(y).abs().scale(10).to_image();
-    Image x = v.streak_up(z);
+    Image y = v.duplicate().box().laplacian5().abs().scale(10);
+    Image x = v.streak_up(y);
     END_TIMER();
 
     START_TIMER("Encoding");

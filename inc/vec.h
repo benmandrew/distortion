@@ -28,7 +28,7 @@ struct vec4 {
 
     vec4 v_abs() const;
     vec4 v_min_zero() const;
-    vec4 smooth_cap(double half = 127.0, double max = 255.0) const;
+    vec4 smooth_clamp(double half = 127.0, double max = 255.0) const;
 };
 
 template <typename T>
@@ -124,7 +124,7 @@ vec4<T> vec4<T>::v_min_zero() const {
 }
 
 template <typename T>
-vec4<T> vec4<T>::smooth_cap(double half, double max) const {
+vec4<T> vec4<T>::smooth_clamp(double half, double max) const {
     double rd = static_cast<double>(r);
     double gd = static_cast<double>(g);
     double bd = static_cast<double>(b);
