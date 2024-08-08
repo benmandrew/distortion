@@ -26,8 +26,8 @@ struct vec4 {
     vec4 scale(const U c) const;
     double luminance() const;
 
-    vec4 v_abs() const;
-    vec4 v_min_zero() const;
+    vec4 abs() const;
+    vec4 min_zero() const;
     vec4 smooth_clamp(double half = 127.0, double max = 255.0) const;
 };
 
@@ -104,17 +104,17 @@ double vec4<T>::luminance() const {
 }
 
 template <typename T>
-vec4<T> vec4<T>::v_abs() const {
+vec4<T> vec4<T>::abs() const {
     return vec4{
-        .r = abs(r),
-        .g = abs(g),
-        .b = abs(b),
-        .a = abs(a),
+        .r = std::abs(r),
+        .g = std::abs(g),
+        .b = std::abs(b),
+        .a = std::abs(a),
     };
 }
 
 template <typename T>
-vec4<T> vec4<T>::v_min_zero() const {
+vec4<T> vec4<T>::min_zero() const {
     return vec4{
         .r = std::min(r, static_cast<T>(0)),
         .g = std::min(g, static_cast<T>(0)),

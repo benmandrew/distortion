@@ -23,11 +23,7 @@ void Rle::encode(const std::vector<ivec4>& data) {
     colours.push_back(v);
 }
 
-Rle::Rle(const Image& image) {
-    this->w = image.w;
-    this->h = image.h;
-    encode(image.data);
-}
+Rle::Rle(const Image& image) : w{image.w}, h{image.h} { encode(image.data); }
 
 Image Rle::to_image() const {
     std::vector<ivec4> out;

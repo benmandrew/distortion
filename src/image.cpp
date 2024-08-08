@@ -1,22 +1,14 @@
 #include "image.h"
 
-Image::Image(int w, int h) {
-    this->data = std::vector<ivec4>(w * h);
-    this->w = w;
-    this->h = h;
-}
+Image::Image(int w, int h) : w{w}, h{h}, data{std::vector<ivec4>(w * h)} {}
 
-Image::Image(const std::vector<ivec4>& d, int w, int h) {
-    this->data = d;
-    this->w = w;
-    this->h = h;
-}
+Image::Image(const std::vector<ivec4>& data, int w, int h)
+    : w{w}, h{h}, data{data} {}
 
-Image::Image(const std::vector<uvec4>& d, int w, int h) {
-    this->data = std::vector<ivec4>(d.size());
-    std::transform(d.cbegin(), d.cend(), this->data.begin(), uvec4_to_ivec4);
-    this->w = w;
-    this->h = h;
+Image::Image(const std::vector<uvec4>& data, int w, int h)
+    : w{w}, h{h}, data{std::vector<ivec4>(data.size())} {
+    std::transform(data.cbegin(), data.cend(), this->data.begin(),
+                   uvec4_to_ivec4);
 }
 
 const ivec4& Image::get_px(int x, int y) const {
@@ -105,7 +97,8 @@ Image& Image::streak(
 }
 
 Image& Image::streak_down(const std::optional<Image>& measure_source) {
-    std::vector<int> h_iter(w), v_iter(h);
+    auto h_iter = std::vector<int>(w);
+    auto v_iter = std::vector<int>(h);
     std::iota(h_iter.begin(), h_iter.end(), 0);
     std::iota(v_iter.rbegin(), v_iter.rend(), 0);
     auto get_streak_pos = [](int w, int h, int i, int j,
@@ -120,7 +113,8 @@ Image& Image::streak_down(const std::optional<Image>& measure_source) {
 }
 
 Image& Image::streak_up(const std::optional<Image>& measure_source) {
-    std::vector<int> h_iter(w), v_iter(h);
+    auto h_iter = std::vector<int>(w);
+    auto v_iter = std::vector<int>(h);
     std::iota(h_iter.begin(), h_iter.end(), 0);
     std::iota(v_iter.begin(), v_iter.end(), 0);
     auto get_streak_pos = [](int w, int h, int i, int j,
@@ -135,7 +129,8 @@ Image& Image::streak_up(const std::optional<Image>& measure_source) {
 }
 
 Image& Image::streak_left(const std::optional<Image>& measure_source) {
-    std::vector<int> h_iter(w), v_iter(h);
+    auto h_iter = std::vector<int>(w);
+    auto v_iter = std::vector<int>(h);
     std::iota(h_iter.begin(), h_iter.end(), 0);
     std::iota(v_iter.begin(), v_iter.end(), 0);
     auto get_streak_pos = [](int w, int h, int i, int j,
@@ -150,7 +145,8 @@ Image& Image::streak_left(const std::optional<Image>& measure_source) {
 }
 
 Image& Image::streak_right(const std::optional<Image>& measure_source) {
-    std::vector<int> h_iter(w), v_iter(h);
+    auto h_iter = std::vector<int>(w);
+    auto v_iter = std::vector<int>(h);
     std::iota(h_iter.rbegin(), h_iter.rend(), 0);
     std::iota(v_iter.begin(), v_iter.end(), 0);
     auto get_streak_pos = [](int w, int h, int i, int j,
@@ -175,13 +171,13 @@ Image& Image::add(const Image& other, double other_ratio) {
 }
 
 Image& Image::abs() {
-    auto f = [](ivec4& v) { return v.v_abs(); };
+    auto f = [](ivec4& v) { return v.abs(); };
     std::transform(data.begin(), data.end(), data.begin(), f);
     return *this;
 }
 
 Image& Image::clamp_zero() {
-    auto f = [](ivec4& v) { return v.v_min_zero(); };
+    auto f = [](ivec4& v) { return v.min_zero(); };
     std::transform(data.begin(), data.end(), data.begin(), f);
     return *this;
 }
@@ -201,10 +197,7 @@ Image& Image::scale(double c) {
 
 Image& Image::apply_filter(const Kernel& k) {
     auto data = std::vector<ivec4>(w * h);
-    double kmag = 0.0;
-    for (int v : k.kernel) {
-        kmag += static_cast<double>(std::abs(v));
-    }
+    double kmag = static_cast<double>(k.abs_mag());
     for (int j = 0; j < h; j++) {
         for (int i = 0; i < w; i++) {
             int idx = j * w + i;
@@ -213,8 +206,7 @@ Image& Image::apply_filter(const Kernel& k) {
                 for (int ki = 0; ki < k.w; ki++) {
                     int kx = i + ki - k.w / 2;
                     int ky = j + kj - k.h / 2;
-                    out =
-                        out.add(get_px(kx, ky).scale(k.kernel[kj * k.w + ki]));
+                    out = out.add(get_px(kx, ky).scale(k.get_px(ki, kj)));
                 }
             }
             data[idx] = out.scale(1.0 / kmag);
@@ -226,33 +218,34 @@ Image& Image::apply_filter(const Kernel& k) {
 }
 
 Image& Image::sobel_horizontal() {
-    std::vector<int> k = {-1, 0, 1, -2, 0, 2, -1, 0, 1};
+    auto k = std::vector<int>{-1, 0, 1, -2, 0, 2, -1, 0, 1};
     return apply_filter(Kernel(k, 3, 3));
 }
 
 Image& Image::sobel_vertical() {
-    std::vector<int> k = {-1, -2, -1, 0, 0, 0, 1, 2, 1};
+    auto k = std::vector<int>{-1, -2, -1, 0, 0, 0, 1, 2, 1};
     return apply_filter(Kernel(k, 3, 3));
 }
 
 Image& Image::laplacian3() {
-    std::vector<int> k = {-1, -1, -1, -1, 8, -1, -1, -1, -1};
+    auto k = std::vector<int>{-1, -1, -1, -1, 8, -1, -1, -1, -1};
     return apply_filter(Kernel(k, 3, 3));
 }
 
 Image& Image::laplacian5() {
-    std::vector<int> k = {0,  0,  -1, 0,  0,  0,  -1, -2, -1, 0,  -1, -2, 16,
-                          -2, -1, 0,  -1, -2, -1, 0,  0,  0,  -1, 0,  0};
+    auto k =
+        std::vector<int>{0,  0,  -1, 0,  0,  0,  -1, -2, -1, 0,  -1, -2, 16,
+                         -2, -1, 0,  -1, -2, -1, 0,  0,  0,  -1, 0,  0};
     return apply_filter(Kernel(k, 5, 5));
 }
 
 Image& Image::box() {
-    std::vector<int> k = {1, 1, 1, 1, 1, 1, 1, 1, 1};
+    auto k = std::vector<int>{1, 1, 1, 1, 1, 1, 1, 1, 1};
     return apply_filter(Kernel(k, 3, 3));
 }
 
 Image& Image::gaussian() {
-    std::vector<int> k = {1,  4, 7, 4,  1,  4,  16, 26, 16, 4, 7, 26, 41,
-                          26, 7, 4, 16, 26, 16, 4,  1,  4,  7, 4, 1};
+    auto k = std::vector<int>{1,  4, 7, 4,  1,  4,  16, 26, 16, 4, 7, 26, 41,
+                              26, 7, 4, 16, 26, 16, 4,  1,  4,  7, 4, 1};
     return apply_filter(Kernel(k, 5, 5));
 }
