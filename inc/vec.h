@@ -29,6 +29,7 @@ struct vec4 {
     vec4 abs() const;
     vec4 min_zero() const;
     vec4 smooth_clamp(double half = 127.0, double max = 255.0) const;
+    vec4 modulo(T mod) const;
 };
 
 template <typename T>
@@ -133,6 +134,22 @@ vec4<T> vec4<T>::smooth_clamp(double half, double max) const {
         .r = static_cast<T>(max * rd / (rd + half)),
         .g = static_cast<T>(max * gd / (gd + half)),
         .b = static_cast<T>(max * bd / (bd + half)),
+        .a = 255,
+    };
+}
+
+template <typename T>
+vec4<T> vec4<T>::modulo(T mod) const {
+    auto f = [mod](T v) {
+        while (v < static_cast<T>(0)) {
+            v += mod;
+        }
+        return v % mod;
+    };
+    return vec4{
+        .r = f(r),
+        .g = f(g),
+        .b = f(b),
         .a = 255,
     };
 }

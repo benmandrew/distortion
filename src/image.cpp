@@ -187,6 +187,13 @@ Image& Image::smooth_clamp(double half, double max) {
     std::transform(data.begin(), data.end(), data.begin(), f);
     return *this;
 }
+
+Image& Image::modulo(int mod) {
+    auto f = [mod](ivec4& v) { return v.modulo(mod); };
+    std::transform(data.begin(), data.end(), data.begin(), f);
+    return *this;
+}
+
 Image& Image::scale(double c) {
     auto f = [c](ivec4& v) { return v.scale(c); };
     std::transform(data.begin(), data.end(), data.begin(), f);
@@ -195,57 +202,62 @@ Image& Image::scale(double c) {
 
 #include <numeric>
 
-Image& Image::apply_filter(const Kernel& k) {
+Image& Image::apply_filter(const Kernel& k, bool normalise) {
     auto data = std::vector<ivec4>(w * h);
-    double kmag = static_cast<double>(k.abs_mag());
     for (int j = 0; j < h; j++) {
         for (int i = 0; i < w; i++) {
             int idx = j * w + i;
-            auto out = ivec4::zero;
+            data[idx] = ivec4::zero;
             for (int kj = 0; kj < k.h; kj++) {
                 for (int ki = 0; ki < k.w; ki++) {
                     int kx = i + ki - k.w / 2;
                     int ky = j + kj - k.h / 2;
-                    out = out.add(get_px(kx, ky).scale(k.get_px(ki, kj)));
+                    data[idx] =
+                        data[idx].add(get_px(kx, ky).scale(k.get_px(ki, kj)));
                 }
             }
-            data[idx] = out.scale(1.0 / kmag);
             data[idx].a = 255;
+        }
+    }
+    if (normalise) {
+        double kmag = static_cast<double>(k.abs_mag());
+        for (ivec4& v : data) {
+            v = v.scale(1.0 / kmag);
         }
     }
     this->data = data;
     return *this;
 }
 
-Image& Image::sobel_horizontal() {
+Image& Image::sobel_horizontal(bool normalise) {
     auto k = std::vector<int>{-1, 0, 1, -2, 0, 2, -1, 0, 1};
-    return apply_filter(Kernel(k, 3, 3));
+    return apply_filter(Kernel(k, 3, 3), normalise);
 }
 
-Image& Image::sobel_vertical() {
+Image& Image::sobel_vertical(bool normalise) {
     auto k = std::vector<int>{-1, -2, -1, 0, 0, 0, 1, 2, 1};
-    return apply_filter(Kernel(k, 3, 3));
+    return apply_filter(Kernel(k, 3, 3), normalise);
 }
 
-Image& Image::laplacian3() {
+Image& Image::laplacian3(bool normalise) {
     auto k = std::vector<int>{-1, -1, -1, -1, 8, -1, -1, -1, -1};
-    return apply_filter(Kernel(k, 3, 3));
+    return apply_filter(Kernel(k, 3, 3), normalise);
 }
 
-Image& Image::laplacian5() {
+Image& Image::laplacian5(bool normalise) {
     auto k =
         std::vector<int>{0,  0,  -1, 0,  0,  0,  -1, -2, -1, 0,  -1, -2, 16,
                          -2, -1, 0,  -1, -2, -1, 0,  0,  0,  -1, 0,  0};
-    return apply_filter(Kernel(k, 5, 5));
+    return apply_filter(Kernel(k, 5, 5), normalise);
 }
 
-Image& Image::box() {
+Image& Image::box(bool normalise) {
     auto k = std::vector<int>{1, 1, 1, 1, 1, 1, 1, 1, 1};
-    return apply_filter(Kernel(k, 3, 3));
+    return apply_filter(Kernel(k, 3, 3), normalise);
 }
 
-Image& Image::gaussian() {
+Image& Image::gaussian(bool normalise) {
     auto k = std::vector<int>{1,  4, 7, 4,  1,  4,  16, 26, 16, 4, 7, 26, 41,
                               26, 7, 4, 16, 26, 16, 4,  1,  4,  7, 4, 1};
-    return apply_filter(Kernel(k, 5, 5));
+    return apply_filter(Kernel(k, 5, 5), normalise);
 }

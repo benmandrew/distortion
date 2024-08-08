@@ -14,7 +14,7 @@ class Image {
     int w, h;
 
    private:
-    Image& apply_filter(const Kernel& kernel);
+    Image& apply_filter(const Kernel& kernel, bool normalise);
 
    public:
     Image(int w, int h);
@@ -46,15 +46,16 @@ class Image {
     Image& abs();
     Image& clamp_zero();
     Image& smooth_clamp(double half = 127.0, double max = 255.0);
+    Image& modulo(int mod);
 
     Image& scale(double c);
 
-    Image& sobel_horizontal();
-    Image& sobel_vertical();
-    Image& laplacian3();
-    Image& laplacian5();
-    Image& box();
-    Image& gaussian();
+    Image& sobel_horizontal(bool normalise);
+    Image& sobel_vertical(bool normalise);
+    Image& laplacian3(bool normalise);
+    Image& laplacian5(bool normalise);
+    Image& box(bool normalise = true);
+    Image& gaussian(bool normalise = true);
 };
 
 #endif

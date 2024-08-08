@@ -106,8 +106,13 @@ int main(int argc, char* argv[]) {
     END_TIMER();
 
     START_TIMER("Processing");
-    Image y = v.duplicate().box().laplacian5().abs().scale(10);
-    Image x = v.streak_up(y);
+    Image x = v.duplicate()
+                  // .box()
+                  .gaussian()
+                  .laplacian5(false)
+                  .abs()
+                  .modulo(256);
+    // Image x = v.streak_up(y);
     END_TIMER();
 
     START_TIMER("Encoding");
