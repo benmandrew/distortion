@@ -107,9 +107,13 @@ int main(int argc, char* argv[]) {
 
     START_TIMER("Processing");
     Image x = v.duplicate()
-                  // .box()
+                //   .box()
                   .gaussian()
-                  .laplacian5(false)
+                  .scale(3)
+                  .modulo(256)
+                //   .gaussian()
+                  .laplacian5(true)
+                  .scale(3)
                   .abs()
                   .modulo(256);
     // Image x = v.streak_up(y);
