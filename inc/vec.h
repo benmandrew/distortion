@@ -100,7 +100,7 @@ vec4<T> vec4<T>::scale(const U c) const {
         .g = static_cast<T>(c * static_cast<U>(g)),
         .b = static_cast<T>(c * static_cast<U>(b)),
         // .a = static_cast<T>(c * static_cast<U>(a)),
-        .a = 255,
+        .a = static_cast<T>(255),
     };
 }
 

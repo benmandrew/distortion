@@ -17,7 +17,6 @@ class Dct {
 
    public:
     int w, h;
-    static constexpr int block_size = 8;
 
     Dct(const Image& image);
 
