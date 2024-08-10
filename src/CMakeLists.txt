@@ -9,6 +9,7 @@ add_executable(
     image.cpp
     rle.cpp
     relblock.cpp
+    dct.cpp
 )
 
 target_link_libraries(

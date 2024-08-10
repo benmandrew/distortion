@@ -2,6 +2,7 @@
 #include <chrono>
 #include <iostream>
 
+#include "dct.h"
 #include "image.h"
 #include "lodepng.h"
 #include "relblock.h"
@@ -106,16 +107,17 @@ int main(int argc, char* argv[]) {
     END_TIMER();
 
     START_TIMER("Processing");
-    Image x = v.duplicate()
-                //   .box()
-                  .gaussian()
-                  .scale(3)
-                  .modulo(256)
-                //   .gaussian()
-                  .laplacian5(true)
-                  .scale(3)
-                  .abs()
-                  .modulo(256);
+    auto x = Dct(v).to_image_decode().abs();
+    // Image x = v.duplicate()
+    //               //   .box()
+    //               .gaussian()
+    //               .scale(3)
+    //               .modulo(256)
+    //               //   .gaussian()
+    //               .laplacian5(true)
+    //               .scale(3)
+    //               .abs()
+    //               .modulo(256);
     // Image x = v.streak_up(y);
     END_TIMER();
 

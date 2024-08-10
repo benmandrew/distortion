@@ -11,7 +11,7 @@ struct vec4 {
         .r = static_cast<T>(0),
         .g = static_cast<T>(0),
         .b = static_cast<T>(0),
-        .a = static_cast<T>(0),
+        .a = static_cast<T>(255),
     };
 
     template <typename U>
@@ -156,6 +156,7 @@ vec4<T> vec4<T>::modulo(T mod) const {
 
 using uvec4 = vec4<u_char>;
 using ivec4 = vec4<int>;
+using dvec4 = vec4<double>;
 
 inline ivec4 uvec4_to_ivec4(const uvec4& v) {
     return ivec4{
@@ -172,6 +173,24 @@ inline uvec4 ivec4_to_uvec4(const ivec4& v) {
         .g = static_cast<u_char>(v.g),
         .b = static_cast<u_char>(v.b),
         .a = static_cast<u_char>(v.a),
+    };
+}
+
+inline ivec4 dvec4_to_ivec4(const dvec4& v) {
+    return ivec4{
+        .r = static_cast<int>(v.r),
+        .g = static_cast<int>(v.g),
+        .b = static_cast<int>(v.b),
+        .a = static_cast<int>(v.a),
+    };
+}
+
+inline dvec4 ivec4_to_dvec4(const ivec4& v) {
+    return vec4{
+        .r = static_cast<double>(v.r),
+        .g = static_cast<double>(v.g),
+        .b = static_cast<double>(v.b),
+        .a = static_cast<double>(v.a),
     };
 }
 
