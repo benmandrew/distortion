@@ -28,7 +28,8 @@ struct vec4 {
 
     vec4 abs() const;
     vec4 min_zero() const;
-    vec4 smooth_clamp(double half = 127.0, double max = 255.0) const;
+    vec4 smooth_clamp(double half = 127.0,
+                      double max = 255.0) const;
     vec4 modulo(T mod) const;
 };
 
@@ -47,11 +48,13 @@ vec4<T> vec4<T>::create(U r, U g, U b, U a) {
 #include <iostream>
 
 template <typename T>
-void print_image(const std::vector<vec4<T>>& data, int w, int h) {
+void print_image(const std::vector<vec4<T>>& data, int w,
+                 int h) {
     for (int j = 0; j < h; j++) {
         for (int i = 0; i < w; i++) {
             int idx = j * w + i;
-            std::cout << std::setfill(' ') << std::setw(4) << +data[idx].r;
+            std::cout << std::setfill(' ') << std::setw(4)
+                      << +data[idx].r;
         }
         std::cout << std::endl;
     }
@@ -83,7 +86,10 @@ vec4<T> vec4<T>::v_saturating_sub(const vec4& x) const {
 
 template <typename T>
 vec4<T> vec4<T>::sub(const vec4& x) const {
-    return vec4{.r = r - x.r, .g = g - x.g, .b = b - x.b, .a = a - x.a};
+    return vec4{.r = r - x.r,
+                .g = g - x.g,
+                .b = b - x.b,
+                .a = a - x.a};
 }
 
 template <typename T>
@@ -100,7 +106,8 @@ vec4<T> vec4<T>::scale(const U c) const {
 
 template <typename T>
 double vec4<T>::luminance() const {
-    return 0.2126 * static_cast<double>(r) + 0.7152 * static_cast<double>(g) +
+    return 0.2126 * static_cast<double>(r) +
+           0.7152 * static_cast<double>(g) +
            0.0722 * static_cast<double>(b);
 }
 
@@ -125,7 +132,8 @@ vec4<T> vec4<T>::min_zero() const {
 }
 
 template <typename T>
-vec4<T> vec4<T>::smooth_clamp(double half, double max) const {
+vec4<T> vec4<T>::smooth_clamp(double half,
+                              double max) const {
     double rd = static_cast<double>(r);
     double gd = static_cast<double>(g);
     double bd = static_cast<double>(b);

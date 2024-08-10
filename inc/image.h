@@ -14,7 +14,8 @@ class Image {
     int w, h;
 
    private:
-    Image& apply_filter(const Kernel& kernel, bool normalise);
+    Image& apply_filter(const Kernel& kernel,
+                        bool normalise);
 
    public:
     Image(int w, int h);
@@ -28,24 +29,29 @@ class Image {
 
     Image& posterise(bool ignore_alpha);
     Image& streak(
-        const std::vector<int> h_iter, const std::vector<int> v_iter,
-        const std::function<std::optional<int>(int, int, int, int, int)>
+        const std::vector<int> h_iter,
+        const std::vector<int> v_iter,
+        const std::function<
+            std::optional<int>(int, int, int, int, int)>
             get_streak_idx,
         const std::function<int(const ivec4&)> measure,
-        const std::optional<Image>& measure_source = std::nullopt);
-    Image& streak_down(
-        const std::optional<Image>& measure_source = std::nullopt);
-    Image& streak_up(const std::optional<Image>& measure_source = std::nullopt);
-    Image& streak_left(
-        const std::optional<Image>& measure_source = std::nullopt);
-    Image& streak_right(
-        const std::optional<Image>& measure_source = std::nullopt);
+        const std::optional<Image>& measure_source =
+            std::nullopt);
+    Image& streak_down(const std::optional<Image>&
+                           measure_source = std::nullopt);
+    Image& streak_up(const std::optional<Image>&
+                         measure_source = std::nullopt);
+    Image& streak_left(const std::optional<Image>&
+                           measure_source = std::nullopt);
+    Image& streak_right(const std::optional<Image>&
+                            measure_source = std::nullopt);
 
     Image& add(const Image& other, double other_ratio);
 
     Image& abs();
     Image& clamp_zero();
-    Image& smooth_clamp(double half = 127.0, double max = 255.0);
+    Image& smooth_clamp(double half = 127.0,
+                        double max = 255.0);
     Image& modulo(int mod);
 
     Image& scale(double c);

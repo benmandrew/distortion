@@ -9,8 +9,8 @@ void Rle::encode(const std::vector<ivec4>& data) {
     std::vector<ivec4> colours;
     while (i < len) {
         const auto& v_tmp = data[i];
-        if (v.r != v_tmp.r || v.g != v_tmp.g || v.b != v_tmp.b ||
-            v.a != v_tmp.a) {
+        if (v.r != v_tmp.r || v.g != v_tmp.g ||
+            v.b != v_tmp.b || v.a != v_tmp.a) {
             lengths.push_back(runlength);
             colours.push_back(v);
             runlength = 1;
@@ -23,7 +23,9 @@ void Rle::encode(const std::vector<ivec4>& data) {
     colours.push_back(v);
 }
 
-Rle::Rle(const Image& image) : w{image.w}, h{image.h} { encode(image.data); }
+Rle::Rle(const Image& image) : w{image.w}, h{image.h} {
+    encode(image.data);
+}
 
 Image Rle::to_image() const {
     std::vector<ivec4> out;
@@ -49,7 +51,8 @@ void Rle::add_noise(double stddev = 1.0) {
         if (runlength < -offset) {
             lengths[i] = 0;
         } else {
-            lengths[i] = static_cast<int>(runlength + offset);
+            lengths[i] =
+                static_cast<int>(runlength + offset);
         }
         total_len += lengths[i];
         if (total_len > target_len) {
@@ -58,7 +61,8 @@ void Rle::add_noise(double stddev = 1.0) {
         }
     }
     if (total_len < target_len) {
-        lengths[lengths.size() - 1] += target_len - total_len;
+        lengths[lengths.size() - 1] +=
+            target_len - total_len;
     }
 }
 
@@ -90,7 +94,8 @@ void Rle::add_noise_rows(double stddev = 1.0) {
             }
         }
         if (row_len <= w) {
-            lengths[n_prev_runs + runs_in_row - 1] += w - row_len;
+            lengths[n_prev_runs + runs_in_row - 1] +=
+                w - row_len;
         }
         n_prev_runs += runs_in_row;
     }

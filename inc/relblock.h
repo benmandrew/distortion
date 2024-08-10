@@ -14,7 +14,8 @@ class RelBlock {
     Image to_image() const;
     Image rel_to_image() const;
 
-    std::vector<ivec4> get_centers(const std::vector<ivec4>& data) const;
+    std::vector<ivec4> get_centers(
+        const std::vector<ivec4>& data) const;
     std::vector<ivec4> get_relative_blocks(
         const std::vector<ivec4>& data) const;
 };

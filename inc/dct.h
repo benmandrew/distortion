@@ -10,8 +10,10 @@ class Dct {
     const dvec4& get_px(int bi, int bj, int i, int j) const;
     dvec4& get_px(int bi, int bj, int i, int j);
     int block_idx(int bi, int bj, int i, int j) const;
-    void encode_block(std::vector<dvec4>& decode, int bi, int bj);
-    void decode_block(std::vector<ivec4>& out, int bi, int bj) const;
+    void encode_block(std::vector<dvec4>& decode, int bi,
+                      int bj);
+    void decode_block(std::vector<ivec4>& out, int bi,
+                      int bj) const;
 
    public:
     int w, h;

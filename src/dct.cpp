@@ -3,7 +3,9 @@
 static constexpr int B_SIZE = 4;
 
 Dct::Dct(const Image& image)
-    : data{std::vector<dvec4>(image.data.size())}, w{image.w}, h{image.h} {
+    : data{std::vector<dvec4>(image.data.size())},
+      w{image.w},
+      h{image.h} {
     int bw = w / B_SIZE;
     int bh = h / B_SIZE;
     auto source = std::vector<dvec4>(data.size());
@@ -37,7 +39,8 @@ Image Dct::to_image_decode() const {
     return Image(out, w, h);
 }
 
-const dvec4& Dct::get_px(int bi, int bj, int i, int j) const {
+const dvec4& Dct::get_px(int bi, int bj, int i,
+                         int j) const {
     return data[(bj * B_SIZE + j) * w + bi * B_SIZE + j];
 }
 
@@ -57,22 +60,26 @@ static constexpr double alpha(int i) {
     return 0.5;
 }
 
-static const std::array<double, B_SIZE * B_SIZE> gen_cosine() {
+static const std::array<double, B_SIZE * B_SIZE>
+gen_cosine() {
     auto a = std::array<double, B_SIZE * B_SIZE>();
     for (int j = 0; j < B_SIZE; j++) {
         for (int i = 0; i < B_SIZE; i++) {
-            a[j * B_SIZE + i] = std::cos(PI * j * (2 * i + 1) * INV16);
+            a[j * B_SIZE + i] =
+                std::cos(PI * j * (2 * i + 1) * INV16);
         }
     }
     return a;
 }
 
-static const std::array<double, B_SIZE * B_SIZE> gen_inv_cosine() {
+static const std::array<double, B_SIZE * B_SIZE>
+gen_inv_cosine() {
     auto a = std::array<double, B_SIZE * B_SIZE>();
     for (int j = 0; j < B_SIZE; j++) {
         for (int i = 0; i < B_SIZE; i++) {
             a[j * B_SIZE + i] =
-                alpha(i) * alpha(j) * std::cos(PI * j * (2 * i + 1) * INV16);
+                alpha(i) * alpha(j) *
+                std::cos(PI * j * (2 * i + 1) * INV16);
         }
     }
     return a;
@@ -85,7 +92,8 @@ int Dct::block_idx(int bi, int bj, int i, int j) const {
     return (bj * B_SIZE + j) * w + bi * B_SIZE + i;
 }
 
-void Dct::encode_block(std::vector<dvec4>& source, int bi, int bj) {
+void Dct::encode_block(std::vector<dvec4>& source, int bi,
+                       int bj) {
     for (int v = 0; v < B_SIZE; v++) {
         for (int u = 0; u < B_SIZE; u++) {
             int uv = block_idx(bi, bj, u, v);
@@ -93,9 +101,10 @@ void Dct::encode_block(std::vector<dvec4>& source, int bi, int bj) {
             for (int y = 0; y < B_SIZE; y++) {
                 for (int x = 0; x < B_SIZE; x++) {
                     int xy = block_idx(bi, bj, x, y);
-                    double coeff =
-                        cosine[u * B_SIZE + x] * cosine[v * B_SIZE + y];
-                    data[uv] = data[uv].add(source[xy].scale(coeff));
+                    double coeff = cosine[u * B_SIZE + x] *
+                                   cosine[v * B_SIZE + y];
+                    data[uv] = data[uv].add(
+                        source[xy].scale(coeff));
                 }
             }
             data[uv] = data[uv].scale(alpha(u) * alpha(v));
@@ -104,7 +113,8 @@ void Dct::encode_block(std::vector<dvec4>& source, int bi, int bj) {
     }
 }
 
-void Dct::decode_block(std::vector<ivec4>& out, int bi, int bj) const {
+void Dct::decode_block(std::vector<ivec4>& out, int bi,
+                       int bj) const {
     for (int y = 0; y < B_SIZE; y++) {
         for (int x = 0; x < B_SIZE; x++) {
             int xy = block_idx(bi, bj, x, y);
@@ -112,9 +122,10 @@ void Dct::decode_block(std::vector<ivec4>& out, int bi, int bj) const {
             for (int v = 0; v < B_SIZE; v++) {
                 for (int u = 0; u < B_SIZE; u++) {
                     int uv = block_idx(bi, bj, u, v);
-                    double coeff =
-                        cosine[u * B_SIZE + x] * cosine[v * B_SIZE + y];
-                    out_vec = out_vec.add(data[uv].scale(coeff));
+                    double coeff = cosine[u * B_SIZE + x] *
+                                   cosine[v * B_SIZE + y];
+                    out_vec =
+                        out_vec.add(data[uv].scale(coeff));
                 }
             }
             out_vec.a = 255;

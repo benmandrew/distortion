@@ -10,7 +10,8 @@ class Kernel {
    public:
     const int w, h;
 
-    Kernel(std::vector<int> k, int w, int h) : kernel{k}, w{w}, h{h} {}
+    Kernel(std::vector<int> k, int w, int h)
+        : kernel{k}, w{w}, h{h} {}
 
     int get_px(int x, int y) const {
         if (x < 0) {

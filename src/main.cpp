@@ -8,7 +8,8 @@
 #include "relblock.h"
 #include "rle.h"
 
-std::vector<ivec4> to_vectors(const std::vector<u_char>& data) {
+std::vector<ivec4> to_vectors(
+    const std::vector<u_char>& data) {
     assert(data.size() % 4 == 0);
     std::vector<ivec4> out(data.size() / 4);
     for (int i = 0; i < out.size(); i++) {
@@ -22,7 +23,8 @@ std::vector<ivec4> to_vectors(const std::vector<u_char>& data) {
     return out;
 }
 
-std::vector<u_char> to_data(const std::vector<ivec4>& data) {
+std::vector<u_char> to_data(
+    const std::vector<ivec4>& data) {
     std::vector<u_char> out(data.size() * 4);
     for (int i = 0; i < data.size(); i++) {
         const auto& v = data[i];
@@ -54,7 +56,8 @@ Image decode(const char* filename) {
 void encode(const char* filename, const Image& image) {
     std::vector<u_char> png;
     const std::vector<u_char> data = to_data(image.data);
-    u_char error = lodepng::encode(png, data, image.w, image.h);
+    u_char error =
+        lodepng::encode(png, data, image.w, image.h);
     if (!error) {
         lodepng::save_file(png, filename);
     }
@@ -65,23 +68,26 @@ void encode(const char* filename, const Image& image) {
 }
 
 void output_help(char* argv[]) {
-    std::cout << "Usage: " << argv[0] << " [image.png]" << std::endl;
+    std::cout << "Usage: " << argv[0] << " [image.png]"
+              << std::endl;
 }
 
-#define INIT_TIMER()                                        \
-    auto start = std::chrono::high_resolution_clock::now(); \
+#define INIT_TIMER()                               \
+    auto start =                                   \
+        std::chrono::high_resolution_clock::now(); \
     auto end = std::chrono::high_resolution_clock::now();
 
 #define START_TIMER(s)                                 \
     start = std::chrono::high_resolution_clock::now(); \
     std::cout << s << std::endl;
 
-#define END_TIMER()                                                           \
-    end = std::chrono::high_resolution_clock::now();                          \
-    std::cout << "Took "                                                      \
-              << std::chrono::duration_cast<std::chrono::milliseconds>(end -  \
-                                                                       start) \
-                     .count()                                                 \
+#define END_TIMER()                                    \
+    end = std::chrono::high_resolution_clock::now();   \
+    std::cout << "Took "                               \
+              << std::chrono::duration_cast<           \
+                     std::chrono::milliseconds>(end -  \
+                                                start) \
+                     .count()                          \
               << "ms" << std::endl;
 
 int main(int argc, char* argv[]) {
