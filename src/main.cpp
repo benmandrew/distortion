@@ -12,7 +12,7 @@ std::vector<ivec4> to_vectors(
     const std::vector<u_char>& data) {
     assert(data.size() % 4 == 0);
     std::vector<ivec4> out(data.size() / 4);
-    for (int i = 0; i < out.size(); i++) {
+    for (size_t i = 0; i < out.size(); i++) {
         out[i] = ivec4{
             .r = data[4 * i],
             .g = data[4 * i + 1],
@@ -26,7 +26,7 @@ std::vector<ivec4> to_vectors(
 std::vector<u_char> to_data(
     const std::vector<ivec4>& data) {
     std::vector<u_char> out(data.size() * 4);
-    for (int i = 0; i < data.size(); i++) {
+    for (size_t i = 0; i < data.size(); i++) {
         const auto& v = data[i];
         out[4 * i] = v.r;
         out[4 * i + 1] = v.g;

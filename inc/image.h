@@ -10,8 +10,8 @@
 
 class Image {
    public:
-    std::vector<ivec4> data;
     int w, h;
+    std::vector<ivec4> data;
 
    private:
     Image& apply_filter(const Kernel& kernel,

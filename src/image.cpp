@@ -49,7 +49,7 @@ u_char posterise_value(u_char v) {
 
 Image& Image::posterise(bool ignore_alpha = true) {
     std::vector<ivec4> out(data.size());
-    for (int i = 0; i < data.size(); i++) {
+    for (size_t i = 0; i < data.size(); i++) {
         const auto& v_o = data[i];
         auto& v_t = out[i];
         v_t.r = posterise_value(v_o.r);
@@ -132,7 +132,8 @@ Image& Image::streak_up(
     auto v_iter = std::vector<int>(h);
     std::iota(h_iter.begin(), h_iter.end(), 0);
     std::iota(v_iter.begin(), v_iter.end(), 0);
-    auto get_streak_pos = [](int w, int h, int i, int j,
+    auto get_streak_pos = [](int w, int h [[gnu::unused]],
+                             int i, int j,
                              int k) -> std::optional<int> {
         if (j - k < 0) {
             return std::nullopt;
@@ -152,7 +153,8 @@ Image& Image::streak_left(
     auto v_iter = std::vector<int>(h);
     std::iota(h_iter.begin(), h_iter.end(), 0);
     std::iota(v_iter.begin(), v_iter.end(), 0);
-    auto get_streak_pos = [](int w, int h, int i, int j,
+    auto get_streak_pos = [](int w, int h [[gnu::unused]],
+                             int i, int j,
                              int k) -> std::optional<int> {
         if (i - k < 0) {
             return std::nullopt;
@@ -172,7 +174,8 @@ Image& Image::streak_right(
     auto v_iter = std::vector<int>(h);
     std::iota(h_iter.rbegin(), h_iter.rend(), 0);
     std::iota(v_iter.begin(), v_iter.end(), 0);
-    auto get_streak_pos = [](int w, int h, int i, int j,
+    auto get_streak_pos = [](int w, int h [[gnu::unused]],
+                             int i, int j,
                              int k) -> std::optional<int> {
         if (i + k >= w) {
             return std::nullopt;
@@ -188,7 +191,7 @@ Image& Image::streak_right(
 
 Image& Image::add(const Image& other, double other_ratio) {
     std::vector<ivec4> out(data.size());
-    for (int i = 0; i < data.size(); i++) {
+    for (size_t i = 0; i < data.size(); i++) {
         out[i] = (data[i].scale(1.0 - other_ratio))
                      .add(other.data[i].scale(other_ratio));
     }

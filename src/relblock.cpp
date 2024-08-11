@@ -69,7 +69,7 @@ Image RelBlock::to_image() const {
 
 Image RelBlock::rel_to_image() const {
     std::vector<ivec4> data(rel_blocks.size(), ivec4::zero);
-    for (int i = 0; i < rel_blocks.size(); i++) {
+    for (size_t i = 0; i < rel_blocks.size(); i++) {
         data[i] = rel_blocks[i].abs();
         data[i].a = 255;
     }

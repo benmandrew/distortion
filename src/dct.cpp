@@ -23,15 +23,15 @@ Dct::Dct(const Image& image)
 }
 
 Dct::Dct(const std::vector<ivec4>& data, int w, int h)
-    : data{std::vector<dvec4>(data.size())}, w{w}, h{h} {
-    for (int i = 0; i < data.size(); i++) {
+    : w{w}, h{h}, data{std::vector<dvec4>(data.size())} {
+    for (size_t i = 0; i < data.size(); i++) {
         this->data[i] = ivec4_to_dvec4(data[i]);
     }
 }
 
 Image Dct::dump_image() const {
     auto out = std::vector<ivec4>(data.size());
-    for (int i = 0; i < data.size(); i++) {
+    for (size_t i = 0; i < data.size(); i++) {
         out[i] = dvec4_to_ivec4(data[i]);
     }
     return Image(out, w, h);

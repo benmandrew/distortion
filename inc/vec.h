@@ -152,7 +152,6 @@ vec4<T> vec4<T>::smooth_clamp(double half,
     double rd = static_cast<double>(r);
     double gd = static_cast<double>(g);
     double bd = static_cast<double>(b);
-    double ad = static_cast<double>(a);
     return vec4{
         .r = static_cast<T>(max * rd / (rd + half)),
         .g = static_cast<T>(max * gd / (gd + half)),
