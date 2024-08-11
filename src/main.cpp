@@ -79,12 +79,11 @@ void output_help(char* argv[]) {
 
 #define START_TIMER(s)                                 \
     start = std::chrono::high_resolution_clock::now(); \
-    std::cout << s << std::endl;
+    std::cout << s << ": ";
 
 #define END_TIMER()                                    \
     end = std::chrono::high_resolution_clock::now();   \
-    std::cout << "Took "                               \
-              << std::chrono::duration_cast<           \
+    std::cout << std::chrono::duration_cast<           \
                      std::chrono::milliseconds>(end -  \
                                                 start) \
                      .count()                          \
@@ -112,20 +111,21 @@ int main(int argc, char* argv[]) {
     Image v = decode(argv[1]);
     END_TIMER();
 
+    std::cout << "Input dimensions: " << v.w << "x" << v.h
+              << std::endl;
+
     START_TIMER("Processing");
-    auto x = Dct(v).to_image_decode().abs();
-    // Image x = v.duplicate()
-    //               //   .box()
-    //               .gaussian()
-    //               .scale(3)
-    //               .modulo(256)
-    //               //   .gaussian()
-    //               .laplacian5(true)
-    //               .scale(3)
-    //               .abs()
-    //               .modulo(256);
-    // Image x = v.streak_up(y);
+    auto y = Dct(v).dump_image();
+    auto z = y.duplicate();
+    y = y.streak_right(z).streak_down(z);
+    auto x = Dct(y.data, y.w, y.h)
+                 .to_image_decode()
+                 .abs()
+                 .hard_clamp();
     END_TIMER();
+
+    std::cout << "Output dimensions: " << x.w << "x" << x.h
+              << std::endl;
 
     START_TIMER("Encoding");
     encode("resources/out.png", x);

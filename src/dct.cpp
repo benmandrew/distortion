@@ -1,16 +1,19 @@
 #include "dct.h"
 
-static constexpr int B_SIZE = 8;
+static constexpr int B_SIZE = 32;
 
 Dct::Dct(const Image& image)
-    : data{std::vector<dvec4>(image.data.size())},
-      w{image.w},
-      h{image.h} {
+    : w{image.w - (image.w % B_SIZE)},
+      h{image.h - (image.h % B_SIZE)},
+      data{std::vector<dvec4>(w * h)} {
     int bw = w / B_SIZE;
     int bh = h / B_SIZE;
     auto source = std::vector<dvec4>(data.size());
-    for (int i = 0; i < data.size(); i++) {
-        source[i] = ivec4_to_dvec4(image.data[i]);
+    for (int j = 0; j < h; j++) {
+        for (int i = 0; i < w; i++) {
+            source[j * w + i] =
+                ivec4_to_dvec4(image.data[j * image.w + i]);
+        }
     }
     for (int j = 0; j < bh; j++) {
         for (int i = 0; i < bw; i++) {
@@ -19,7 +22,14 @@ Dct::Dct(const Image& image)
     }
 }
 
-Image Dct::to_image() const {
+Dct::Dct(const std::vector<ivec4>& data, int w, int h)
+    : data{std::vector<dvec4>(data.size())}, w{w}, h{h} {
+    for (int i = 0; i < data.size(); i++) {
+        this->data[i] = ivec4_to_dvec4(data[i]);
+    }
+}
+
+Image Dct::dump_image() const {
     auto out = std::vector<ivec4>(data.size());
     for (int i = 0; i < data.size(); i++) {
         out[i] = dvec4_to_ivec4(data[i]);
@@ -59,7 +69,6 @@ static constexpr double NORM =
 static constexpr double alpha(int i) {
     if (i == 0) {
         return 1.0 / 1.414213;
-        // return 1.0;
     }
     return 1.0;
 }

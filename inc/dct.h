@@ -4,6 +4,9 @@
 #include "image.h"
 
 class Dct {
+   public:
+    int w, h;
+
    private:
     std::vector<dvec4> data;
 
@@ -16,11 +19,10 @@ class Dct {
                       int bj) const;
 
    public:
-    int w, h;
-
     Dct(const Image& image);
+    Dct(const std::vector<ivec4>& data, int w, int h);
 
-    Image to_image() const;
+    Image dump_image() const;
     Image to_image_decode() const;
 };
 

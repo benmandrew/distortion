@@ -28,6 +28,7 @@ struct vec4 {
 
     vec4 abs() const;
     vec4 min_zero() const;
+    vec4 hard_clamp(double max = 255.0) const;
     vec4 smooth_clamp(double half = 127.0,
                       double max = 255.0) const;
     vec4 modulo(T mod) const;
@@ -124,10 +125,24 @@ vec4<T> vec4<T>::abs() const {
 template <typename T>
 vec4<T> vec4<T>::min_zero() const {
     return vec4{
-        .r = std::min(r, static_cast<T>(0)),
-        .g = std::min(g, static_cast<T>(0)),
-        .b = std::min(b, static_cast<T>(0)),
-        .a = std::min(a, static_cast<T>(0)),
+        .r = std::max(r, static_cast<T>(0)),
+        .g = std::max(g, static_cast<T>(0)),
+        .b = std::max(b, static_cast<T>(0)),
+        .a = std::max(a, static_cast<T>(0)),
+    };
+}
+
+template <typename T>
+vec4<T> vec4<T>::hard_clamp(double max) const {
+    auto f = [max](T v) {
+        return std::max(std::min(v, static_cast<T>(max)),
+                        static_cast<T>(0));
+    };
+    return vec4{
+        .r = f(r),
+        .g = f(g),
+        .b = f(b),
+        .a = f(a),
     };
 }
 

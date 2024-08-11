@@ -66,7 +66,7 @@ Image& Image::posterise(bool ignore_alpha = true) {
 }
 
 double get_streak_len(double lum) {
-    return pow(lum / 256.0, 2.0) * 1000.0;
+    return pow(lum / 256.0, 2.0) * 0.01;
 }
 
 Image& Image::streak(
@@ -210,6 +210,13 @@ Image& Image::clamp_zero() {
     return *this;
 }
 
+Image& Image::hard_clamp(double max) {
+    auto f = [max](ivec4& v) { return v.hard_clamp(max); };
+    std::transform(data.begin(), data.end(), data.begin(),
+                   f);
+    return *this;
+}
+
 Image& Image::smooth_clamp(double half, double max) {
     auto f = [half, max](ivec4& v) {
         return v.smooth_clamp(half, max);
@@ -228,6 +235,36 @@ Image& Image::modulo(int mod) {
 
 Image& Image::scale(double c) {
     auto f = [c](ivec4& v) { return v.scale(c); };
+    std::transform(data.begin(), data.end(), data.begin(),
+                   f);
+    return *this;
+}
+
+Image& Image::remove_red() {
+    auto f = [](ivec4& v) {
+        v.r = 0;
+        return v;
+    };
+    std::transform(data.begin(), data.end(), data.begin(),
+                   f);
+    return *this;
+}
+
+Image& Image::remove_green() {
+    auto f = [](ivec4& v) {
+        v.g = 0;
+        return v;
+    };
+    std::transform(data.begin(), data.end(), data.begin(),
+                   f);
+    return *this;
+}
+
+Image& Image::remove_blue() {
+    auto f = [](ivec4& v) {
+        v.b = 0;
+        return v;
+    };
     std::transform(data.begin(), data.end(), data.begin(),
                    f);
     return *this;

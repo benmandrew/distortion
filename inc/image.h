@@ -50,11 +50,15 @@ class Image {
 
     Image& abs();
     Image& clamp_zero();
+    Image& hard_clamp(double max = 255.0);
     Image& smooth_clamp(double half = 127.0,
                         double max = 255.0);
     Image& modulo(int mod);
 
     Image& scale(double c);
+    Image& remove_red();
+    Image& remove_green();
+    Image& remove_blue();
 
     Image& sobel_horizontal(bool normalise);
     Image& sobel_vertical(bool normalise);
