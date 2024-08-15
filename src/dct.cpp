@@ -5,9 +5,9 @@ static constexpr int B_SIZE = 32;
 Dct::Dct(const Image& image)
     : w{image.w - (image.w % B_SIZE)},
       h{image.h - (image.h % B_SIZE)},
-      data{std::vector<dvec4>(w * h)} {
-    int bw = w / B_SIZE;
-    int bh = h / B_SIZE;
+      data{static_cast<size_t>(w * h)} {
+    const int bw = w / B_SIZE;
+    const int bh = h / B_SIZE;
     auto source = std::vector<dvec4>(data.size());
     for (int j = 0; j < h; j++) {
         for (int i = 0; i < w; i++) {
@@ -23,17 +23,15 @@ Dct::Dct(const Image& image)
 }
 
 Dct::Dct(const std::vector<ivec4>& data, int w, int h)
-    : w{w}, h{h}, data{std::vector<dvec4>(data.size())} {
-    for (size_t i = 0; i < data.size(); i++) {
-        this->data[i] = ivec4_to_dvec4(data[i]);
-    }
+    : w{w}, h{h}, data{data.size()} {
+    std::transform(data.cbegin(), data.cend(),
+                   this->data.begin(), ivec4_to_dvec4);
 }
 
 Image Dct::dump_image() const {
     auto out = std::vector<ivec4>(data.size());
-    for (size_t i = 0; i < data.size(); i++) {
-        out[i] = dvec4_to_ivec4(data[i]);
-    }
+    std::transform(data.cbegin(), data.cend(), out.begin(),
+                   dvec4_to_ivec4);
     return Image(out, w, h);
 }
 

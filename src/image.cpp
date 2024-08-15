@@ -1,28 +1,20 @@
 #include "image.h"
 
 Image::Image(int w, int h)
-    : w{w}, h{h}, data{std::vector<ivec4>(w * h)} {}
+    : w{w}, h{h}, data{static_cast<size_t>(w * h)} {}
 
 Image::Image(const std::vector<ivec4>& data, int w, int h)
     : w{w}, h{h}, data{data} {}
 
 Image::Image(const std::vector<uvec4>& data, int w, int h)
-    : w{w}, h{h}, data{std::vector<ivec4>(data.size())} {
+    : w{w}, h{h}, data{data.size()} {
     std::transform(data.cbegin(), data.cend(),
                    this->data.begin(), uvec4_to_ivec4);
 }
 
 const ivec4& Image::get_px(int x, int y) const {
-    if (x < 0) {
-        x = 0;
-    } else if (x >= w) {
-        x = w - 1;
-    }
-    if (y < 0) {
-        y = 0;
-    } else if (y >= h) {
-        y = h - 1;
-    }
+    x = std::clamp(x, 0, w - 1);
+    y = std::clamp(y, 0, h - 1);
     return data[y * w + x];
 }
 
@@ -61,7 +53,7 @@ Image& Image::posterise(bool ignore_alpha = true) {
             v_t.a = posterise_value(v_o.a);
         }
     }
-    this->data = out;
+    data = std::move(out);
     return *this;
 }
 
@@ -102,7 +94,7 @@ Image& Image::streak(
             }
         }
     }
-    this->data = out;
+    data = std::move(out);
     return *this;
 }
 
@@ -202,7 +194,7 @@ Image& Image::add(const Image& other, double other_ratio) {
         out[i] = (data[i].scale(1.0 - other_ratio))
                      .add(other.data[i].scale(other_ratio));
     }
-    this->data = out;
+    data = std::move(out);
     return *this;
 }
 
@@ -219,9 +211,9 @@ Image& Image::half_size() {
                 tl.add(tr).add(bl).add(br).scale(0.25);
         }
     }
-    this->w = hw;
-    this->h = hh;
-    this->data = out;
+    w = hw;
+    h = hh;
+    data = std::move(out);
     return *this;
 }
 
@@ -295,30 +287,30 @@ Image& Image::hsv_to_rgb() {
 
 Image& Image::apply_filter(const Kernel& k,
                            bool normalise) {
-    auto data = std::vector<ivec4>(w * h);
+    auto out = std::vector<ivec4>(w * h);
     for (int j = 0; j < h; j++) {
         for (int i = 0; i < w; i++) {
             int idx = j * w + i;
-            data[idx] = ivec4::zero;
+            out[idx] = ivec4::zero;
             for (int kj = 0; kj < k.h; kj++) {
                 for (int ki = 0; ki < k.w; ki++) {
                     int kx = i + ki - k.w / 2;
                     int ky = j + kj - k.h / 2;
-                    data[idx] =
-                        data[idx].add(get_px(kx, ky).scale(
+                    out[idx] =
+                        out[idx].add(get_px(kx, ky).scale(
                             k.get_px(ki, kj)));
                 }
             }
-            data[idx].a = 255;
+            out[idx].a = 255;
         }
     }
     if (normalise) {
         double kmag = static_cast<double>(k.abs_mag());
-        for (ivec4& v : data) {
+        for (ivec4& v : out) {
             v = v.scale(1.0 / kmag);
         }
     }
-    this->data = data;
+    data = std::move(out);
     return *this;
 }
 

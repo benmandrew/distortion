@@ -19,8 +19,10 @@ class Image {
 
    public:
     Image(int w, int h);
-    Image(const std::vector<ivec4>& data, int w, int h);
-    Image(const std::vector<uvec4>& data, int w, int h);
+    explicit Image(const std::vector<ivec4>& data, int w,
+                   int h);
+    explicit Image(const std::vector<uvec4>& data, int w,
+                   int h);
 
     const ivec4& get_px(int x, int y) const;
     ivec4& get_px(int x, int y);
