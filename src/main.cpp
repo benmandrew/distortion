@@ -115,13 +115,13 @@ int main(int argc, char* argv[]) {
               << std::endl;
 
     START_TIMER("Processing");
-    auto y = Dct(v).dump_image();
-    auto z = y.duplicate();
-    y = y.streak_right(z).streak_down(z);
-    auto x = Dct(y.data, y.w, y.h)
-                 .to_image_decode()
-                 .abs()
-                 .hard_clamp();
+
+    Image x = v.half_size()
+                  .scale(2.0)
+                  .modulo(256)
+                  .remove_red()
+                  .remove_blue();
+
     END_TIMER();
 
     std::cout << "Output dimensions: " << x.w << "x" << x.h

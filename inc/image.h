@@ -46,8 +46,12 @@ class Image {
     Image& streak_right(const std::optional<Image>&
                             measure_source = std::nullopt);
 
+    Image& apply_function(
+        const std::function<ivec4(ivec4&)> f);
+
     Image& add(const Image& other, double other_ratio);
 
+    Image& half_size();
     Image& abs();
     Image& clamp_zero();
     Image& hard_clamp(double max = 255.0);
@@ -59,6 +63,9 @@ class Image {
     Image& remove_red();
     Image& remove_green();
     Image& remove_blue();
+
+    Image& rgb_to_hsv();
+    Image& hsv_to_rgb();
 
     Image& sobel_horizontal(bool normalise);
     Image& sobel_vertical(bool normalise);

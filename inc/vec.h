@@ -32,6 +32,10 @@ struct vec4 {
     vec4 smooth_clamp(double half = 127.0,
                       double max = 255.0) const;
     vec4 modulo(T mod) const;
+    vec4 modulo_pow2(T power) const;
+
+    vec4 rgb_to_hsv() const;
+    vec4 hsv_to_rgb() const;
 };
 
 template <typename T>
@@ -162,18 +166,68 @@ vec4<T> vec4<T>::smooth_clamp(double half,
 
 template <typename T>
 vec4<T> vec4<T>::modulo(T mod) const {
-    auto f = [mod](T v) {
-        while (v < static_cast<T>(0)) {
-            v += mod;
-        }
-        return v % mod;
-    };
+    auto f = [mod](T v) { return v % mod; };
     return vec4{
         .r = f(r),
         .g = f(g),
         .b = f(b),
         .a = 255,
     };
+}
+
+template <typename T>
+vec4<T> vec4<T>::rgb_to_hsv() const {
+    double dr = static_cast<double>(r) / 255.0;
+    double dg = static_cast<double>(g) / 255.0;
+    double db = static_cast<double>(b) / 255.0;
+    double cmax = std::max(dr, std::max(dg, db));
+    double cmin = std::min(dr, std::min(dg, db));
+    double delta = cmax - cmin;
+    double h =
+        std::fmod((dg - db) / delta, 6.0) * (255.0 / 6.0);
+    if (cmax == dg) {
+        h = (((db - dr) / delta) + 2.0) * (255.0 / 6.0);
+    } else if (cmax == db) {
+        h = (((dr - dg) / delta) + 4.0) * (255.0 / 6.0);
+    }
+    double s = 0.0;
+    if (cmax != 0.0) {
+        s = delta / cmax;
+    }
+    double v = cmax;
+    return vec4{.r = static_cast<T>(h),
+                .g = static_cast<T>(s * 255.0),
+                .b = static_cast<T>(v * 255.0),
+                .a = a};
+}
+
+template <typename T>
+vec4<T> vec4<T>::hsv_to_rgb() const {
+    double h = static_cast<double>(r);
+    double s = static_cast<double>(g);
+    double v = static_cast<double>(b);
+    double c = s * v;
+    double x =
+        c *
+        (1.0 -
+         std::abs(std::fmod(h / (255.0 / 6.0), 2.0) - 1.0));
+    double m = v - c;
+    double r = c, g = 0.0, b = x;
+    if (h < 255.0 / 6.0) {
+        r = c, g = x, b = 0.0;
+    } else if (h < 255.0 / 3.0) {
+        r = x, g = c, b = 0.0;
+    } else if (h < 255.0 / 2.0) {
+        r = 0.0, g = c, b = x;
+    } else if (h < (255.0 / 3.0) * 2.0) {
+        r = 0.0, g = x, b = c;
+    } else if (h < (255.0 / 6.0) * 5.0) {
+        r = x, g = 0.0, b = c;
+    }
+    return vec4{.r = static_cast<T>((r + m) * 255.0),
+                .g = static_cast<T>((g + m) * 255.0),
+                .b = static_cast<T>((b + m) * 255.0),
+                .a = a};
 }
 
 using uvec4 = vec4<u_char>;

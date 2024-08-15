@@ -66,7 +66,7 @@ Image& Image::posterise(bool ignore_alpha = true) {
 }
 
 double get_streak_len(double lum) {
-    return pow(lum / 256.0, 2.0) * 0.01;
+    return pow(lum / 256.0, 2.0) * 10;
 }
 
 Image& Image::streak(
@@ -189,6 +189,13 @@ Image& Image::streak_right(
                   measure_source);
 }
 
+Image& Image::apply_function(
+    const std::function<ivec4(ivec4&)> f) {
+    std::transform(data.begin(), data.end(), data.begin(),
+                   f);
+    return *this;
+}
+
 Image& Image::add(const Image& other, double other_ratio) {
     std::vector<ivec4> out(data.size());
     for (size_t i = 0; i < data.size(); i++) {
@@ -199,48 +206,55 @@ Image& Image::add(const Image& other, double other_ratio) {
     return *this;
 }
 
+Image& Image::half_size() {
+    int hw = w / 2, hh = h / 2;
+    std::vector<ivec4> out(hw * hh);
+    for (int j = 0; j < hh; j++) {
+        for (int i = 0; i < hw; i++) {
+            ivec4& tl = data[(2 * j) * w + (2 * i)];
+            ivec4& tr = data[(2 * j) * w + (2 * i + 1)];
+            ivec4& bl = data[(2 * j + 1) * w + (2 * i)];
+            ivec4& br = data[(2 * j + 1) * w + (2 * i + 1)];
+            out[j * hw + i] =
+                tl.add(tr).add(bl).add(br).scale(0.25);
+        }
+    }
+    this->w = hw;
+    this->h = hh;
+    this->data = out;
+    return *this;
+}
+
 Image& Image::abs() {
     auto f = [](ivec4& v) { return v.abs(); };
-    std::transform(data.begin(), data.end(), data.begin(),
-                   f);
-    return *this;
+    return apply_function(f);
 }
 
 Image& Image::clamp_zero() {
     auto f = [](ivec4& v) { return v.min_zero(); };
-    std::transform(data.begin(), data.end(), data.begin(),
-                   f);
-    return *this;
+    return apply_function(f);
 }
 
 Image& Image::hard_clamp(double max) {
     auto f = [max](ivec4& v) { return v.hard_clamp(max); };
-    std::transform(data.begin(), data.end(), data.begin(),
-                   f);
-    return *this;
+    return apply_function(f);
 }
 
 Image& Image::smooth_clamp(double half, double max) {
     auto f = [half, max](ivec4& v) {
         return v.smooth_clamp(half, max);
     };
-    std::transform(data.begin(), data.end(), data.begin(),
-                   f);
-    return *this;
+    return apply_function(f);
 }
 
 Image& Image::modulo(int mod) {
     auto f = [mod](ivec4& v) { return v.modulo(mod); };
-    std::transform(data.begin(), data.end(), data.begin(),
-                   f);
-    return *this;
+    return apply_function(f);
 }
 
 Image& Image::scale(double c) {
     auto f = [c](ivec4& v) { return v.scale(c); };
-    std::transform(data.begin(), data.end(), data.begin(),
-                   f);
-    return *this;
+    return apply_function(f);
 }
 
 Image& Image::remove_red() {
@@ -248,9 +262,7 @@ Image& Image::remove_red() {
         v.r = 0;
         return v;
     };
-    std::transform(data.begin(), data.end(), data.begin(),
-                   f);
-    return *this;
+    return apply_function(f);
 }
 
 Image& Image::remove_green() {
@@ -258,9 +270,7 @@ Image& Image::remove_green() {
         v.g = 0;
         return v;
     };
-    std::transform(data.begin(), data.end(), data.begin(),
-                   f);
-    return *this;
+    return apply_function(f);
 }
 
 Image& Image::remove_blue() {
@@ -268,9 +278,17 @@ Image& Image::remove_blue() {
         v.b = 0;
         return v;
     };
-    std::transform(data.begin(), data.end(), data.begin(),
-                   f);
-    return *this;
+    return apply_function(f);
+}
+
+Image& Image::rgb_to_hsv() {
+    auto f = [](ivec4& v) { return v.rgb_to_hsv(); };
+    return apply_function(f);
+}
+
+Image& Image::hsv_to_rgb() {
+    auto f = [](ivec4& v) { return v.hsv_to_rgb(); };
+    return apply_function(f);
 }
 
 #include <numeric>
