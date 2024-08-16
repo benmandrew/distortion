@@ -273,6 +273,14 @@ Image& Image::remove_blue() {
     return apply_function(f);
 }
 
+Image& Image::black_and_white() {
+    auto f = [](ivec4& v) {
+        int lum = static_cast<int>(v.luminance());
+        return vec4{lum, lum, lum, 255};
+    };
+    return apply_function(f);
+}
+
 Image& Image::rgb_to_hsv() {
     auto f = [](ivec4& v) { return v.rgb_to_hsv(); };
     return apply_function(f);

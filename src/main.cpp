@@ -116,11 +116,17 @@ int main(int argc, char* argv[]) {
 
     START_TIMER("Processing");
 
-    Image x = v.half_size()
-                  .scale(2.0)
-                  .modulo(256)
-                  .remove_red()
-                  .remove_blue();
+    auto f = [](ivec4& v) {
+        v.r += 63;
+        return v;
+    };
+
+    Image x = v.half_size().rgb_to_hsv();
+    // .apply_function(f)
+    // .modulo(256.0)
+    // .hsv_to_rgb();
+    // .scale(4.0)
+    // .modulo(256);
 
     END_TIMER();
 

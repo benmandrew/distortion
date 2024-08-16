@@ -65,6 +65,7 @@ class Image {
     Image& remove_red();
     Image& remove_green();
     Image& remove_blue();
+    Image& black_and_white();
 
     Image& rgb_to_hsv();
     Image& hsv_to_rgb();

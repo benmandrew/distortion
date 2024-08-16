@@ -177,44 +177,47 @@ vec4<T> vec4<T>::rgb_to_hsv() const {
     double cmax = std::max({dr, dg, db});
     double cmin = std::min({dr, dg, db});
     double delta = cmax - cmin;
-    double h =
-        std::fmod((dg - db) / delta, 6.0) * (255.0 / 6.0);
-    if (cmax == dg) {
-        h = (((db - dr) / delta) + 2.0) * (255.0 / 6.0);
-    } else if (cmax == db) {
-        h = (((dr - dg) / delta) + 4.0) * (255.0 / 6.0);
-    }
+    double v = cmax;
     double s = 0.0;
     if (cmax != 0.0) {
         s = delta / cmax;
     }
-    double v = cmax;
-    return vec4{static_cast<T>(h),
+    double h = (dg - db) / delta;
+    if (cmax == dg) {
+        h = ((db - dr) / delta) + 2.0;
+    } else if (cmax == db) {
+        h = ((dr - dg) / delta) + 4.0;
+    }
+    h *= 1.0 / 6.0;
+    if (h < 0.0) {
+        h += 1.0;
+    }
+    return vec4{static_cast<T>(h * 255.0),
                 static_cast<T>(s * 255.0),
                 static_cast<T>(v * 255.0), a};
 }
 
 template <typename T>
 vec4<T> vec4<T>::hsv_to_rgb() const {
-    double h = static_cast<double>(r);
-    double s = static_cast<double>(g);
-    double v = static_cast<double>(b);
+    double h = static_cast<double>(r) / 255.0;
+    double s = static_cast<double>(g) / 255.0;
+    double v = static_cast<double>(b) / 255.0;
     double c = s * v;
     double x =
         c *
         (1.0 -
-         std::abs(std::fmod(h / (255.0 / 6.0), 2.0) - 1.0));
+         std::abs(std::fmod(h / (1.0 / 6.0), 2.0) - 1.0));
     double m = v - c;
     double r = c, g = 0.0, b = x;
-    if (h < 255.0 / 6.0) {
+    if (h < 1.0 / 6.0) {
         r = c, g = x, b = 0.0;
-    } else if (h < 255.0 / 3.0) {
+    } else if (h < 1.0 / 3.0) {
         r = x, g = c, b = 0.0;
-    } else if (h < 255.0 / 2.0) {
+    } else if (h < 1.0 / 2.0) {
         r = 0.0, g = c, b = x;
-    } else if (h < (255.0 / 3.0) * 2.0) {
+    } else if (h < (1.0 / 3.0) * 2.0) {
         r = 0.0, g = x, b = c;
-    } else if (h < (255.0 / 6.0) * 5.0) {
+    } else if (h < (1.0 / 6.0) * 5.0) {
         r = x, g = 0.0, b = c;
     }
     return vec4{static_cast<T>((r + m) * 255.0),
