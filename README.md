@@ -12,4 +12,15 @@ Experiments in discrete image distortion. Accompanying blog post [here](https://
 ![](https://benmandrew.s3.eu-west-2.amazonaws.com/distortion/megan-block-mod-laplacian-streak.jpg)
 
 
+## Build
+
+```sh
+# Configure
+cmake -S . -B build
+# Build
+cmake --build build
+```
+
+---
+
 Using [lodepng](https://github.com/lvandeve/lodepng).
