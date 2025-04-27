@@ -9,7 +9,7 @@
 #include "rle.h"
 
 std::vector<ivec4> to_vectors(
-    const std::vector<u_char>& data) {
+    const std::vector<unsigned char>& data) {
     assert(data.size() % 4 == 0);
     std::vector<ivec4> out(data.size() / 4);
     for (size_t i = 0; i < out.size(); i++) {
@@ -23,9 +23,9 @@ std::vector<ivec4> to_vectors(
     return out;
 }
 
-std::vector<u_char> to_data(
+std::vector<unsigned char> to_data(
     const std::vector<ivec4>& data) {
-    std::vector<u_char> out(data.size() * 4);
+    std::vector<unsigned char> out(data.size() * 4);
     for (size_t i = 0; i < data.size(); i++) {
         const auto& v = data[i];
         out[4 * i] = v.r;
@@ -38,9 +38,9 @@ std::vector<u_char> to_data(
 
 // PNG file to RGBA pixel data
 Image decode(const char* filename) {
-    std::vector<u_char> png, image;
-    u_int width, height;
-    u_int error = lodepng::load_file(png, filename);
+    std::vector<unsigned char> png, image;
+    unsigned int width, height;
+    unsigned int error = lodepng::load_file(png, filename);
     if (!error) {
         error = lodepng::decode(image, width, height, png);
     }
@@ -54,9 +54,10 @@ Image decode(const char* filename) {
 
 // RGBA pixel data to PNG file
 void encode(const char* filename, const Image& image) {
-    std::vector<u_char> png;
-    const std::vector<u_char> data = to_data(image.data);
-    u_char error =
+    std::vector<unsigned char> png;
+    const std::vector<unsigned char> data =
+        to_data(image.data);
+    unsigned char error =
         lodepng::encode(png, data, image.w, image.h);
     if (!error) {
         lodepng::save_file(png, filename);

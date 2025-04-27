@@ -30,9 +30,9 @@ Image Image::duplicate() const {
 
 #define POSTERISATION_LEVELS 8
 #define POSTERISATION_COEFF \
-    (u_char)(256 / POSTERISATION_LEVELS)
+    (unsigned char)(256 / POSTERISATION_LEVELS)
 
-u_char posterise_value(u_char v) {
+unsigned char posterise_value(unsigned char v) {
     if (v == 255) {
         return v;
     }
@@ -78,11 +78,11 @@ Image& Image::streak(
             if (measure_source.has_value()) {
                 v_m = measure_source.value().data[idx];
             }
-            u_char streak_len =
+            unsigned char streak_len =
                 get_streak_len(measure(v_m));
-            streak_len =
-                std::max(static_cast<u_char>(1),
-                         static_cast<u_char>(streak_len));
+            streak_len = std::max(
+                static_cast<unsigned char>(1),
+                static_cast<unsigned char>(streak_len));
             for (int k = 0; k < streak_len; k++) {
                 std::optional<int> s_idx_op =
                     get_streak_idx(w, h, i, j, k);

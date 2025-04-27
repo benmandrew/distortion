@@ -225,7 +225,7 @@ vec4<T> vec4<T>::hsv_to_rgb() const {
                 static_cast<T>((b + m) * 255.0), a};
 }
 
-using uvec4 = vec4<u_char>;
+using uvec4 = vec4<unsigned char>;
 using ivec4 = vec4<int>;
 using dvec4 = vec4<double>;
 
@@ -240,10 +240,10 @@ inline ivec4 uvec4_to_ivec4(const uvec4& v) {
 
 inline uvec4 ivec4_to_uvec4(const ivec4& v) {
     return vec4{
-        static_cast<u_char>(v.r),
-        static_cast<u_char>(v.g),
-        static_cast<u_char>(v.b),
-        static_cast<u_char>(v.a),
+        static_cast<unsigned char>(v.r),
+        static_cast<unsigned char>(v.g),
+        static_cast<unsigned char>(v.b),
+        static_cast<unsigned char>(v.a),
     };
 }
 
