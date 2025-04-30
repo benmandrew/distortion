@@ -7,6 +7,7 @@
 #include "lodepng.h"
 #include "relblock.h"
 #include "rle.h"
+#include "sort.cpp"
 
 std::vector<ivec4> to_vectors(
     const std::vector<unsigned char>& data) {
@@ -60,6 +61,7 @@ void encode(const char* filename, const Image& image) {
     unsigned char error =
         lodepng::encode(png, data, image.w, image.h);
     if (!error) {
+        std::cout << "Saved as " << filename << "\n";
         lodepng::save_file(png, filename);
     }
     if (error) {
@@ -117,12 +119,14 @@ int main(int argc, char* argv[]) {
 
     START_TIMER("Processing");
 
-    auto f = [](ivec4& v) {
-        v.r += 63;
-        return v;
-    };
+    // auto f = [](ivec4& v) {
+    //     v.r += 63;
+    //     return v;
+    // };
 
-    Image x = v.half_size().rgb_to_hsv();
+    Image x = sort(v, 450, 600);
+
+    // Image x = v.half_size().rgb_to_hsv();
     // .apply_function(f)
     // .modulo(256.0)
     // .hsv_to_rgb();

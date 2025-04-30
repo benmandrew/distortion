@@ -27,6 +27,8 @@ class Image {
     const ivec4& get_px(int x, int y) const;
     ivec4& get_px(int x, int y);
 
+    void set_px(int x, int y, const ivec4& v);
+
     Image duplicate() const;
 
     Image& posterise(bool ignore_alpha);

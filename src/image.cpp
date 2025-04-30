@@ -23,10 +23,15 @@ ivec4& Image::get_px(int x, int y) {
         const_cast<const Image*>(this)->get_px(x, y));
 }
 
-Image Image::duplicate() const {
-    auto out = std::vector<ivec4>{data};
-    return Image(out, w, h);
+void Image::set_px(int x, int y, const ivec4& v) {
+    size_t i = y * w + x;
+    data[i].r = v.r;
+    data[i].g = v.g;
+    data[i].b = v.b;
+    data[i].a = v.a;
 }
+
+Image Image::duplicate() const { return Image(data, w, h); }
 
 #define POSTERISATION_LEVELS 8
 #define POSTERISATION_COEFF \
